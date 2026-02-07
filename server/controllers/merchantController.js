@@ -118,3 +118,65 @@ exports.getHotelById = async (req, res) => {
         });
     }
 };
+
+//更新酒店信息
+exports.updateHotel = async(req, res) => {
+    try {
+        const {id} = req.params;
+        const {
+            name_cn,
+            name_en,
+            star_rating,
+            address,
+            opening_date,
+            main_image
+        } = req.body;
+
+        if(!id){
+            return res.status(400).json({
+                message: '缺少酒店ID'
+            })
+        }
+
+        const sql = `
+            UPDATE hotels
+            SET name_cn = ?,
+                name_en = ?,
+                star_rating = ?,
+                address = ?,
+                opening_date = ?,
+                main_image = ?,
+                status = 0
+            WHERE id = ?
+        `;
+
+        const params = [
+            name_cn,
+            name_en,
+            star_rating,
+            address,
+            opening_date,
+            main_image ?? null,
+            id
+        ];
+
+        const [result] = await db.execute(sql, params);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                message: '酒店不存在'
+            });
+        }
+
+        res.json({
+            code: 200,
+            message: '酒店更新成功'
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: '更新酒店失败',
+            error: error.message
+        });
+    }
+};
