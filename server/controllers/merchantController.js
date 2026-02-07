@@ -10,7 +10,9 @@ exports.addHotel = async (req, res) => {
             star_rating,
             address,
             opening_date,
-            main_image
+            main_image,
+            description,
+            nearby_info
         } = req.body;
 
         // 基本校验
@@ -22,7 +24,7 @@ exports.addHotel = async (req, res) => {
 
         const sql = `
             INSERT INTO hotels
-            (merchant_id, name_cn, name_en, star_rating, address, opening_date, main_image, status)
+            (merchant_id, name_cn, name_en, star_rating, address, opening_date, main_image, status, description, nearby_info)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
@@ -34,8 +36,10 @@ exports.addHotel = async (req, res) => {
             star_rating,
             address,
             opening_date,
-            main_image || null,
-            0
+            main_image ?? null,
+            0,
+            description ?? null,
+            nearby_info ?? null
         ];
 
         const [result] = await db.execute(sql, params);
@@ -129,7 +133,9 @@ exports.updateHotel = async(req, res) => {
             star_rating,
             address,
             opening_date,
-            main_image
+            main_image,
+            description,
+            nearby_info
         } = req.body;
 
         if(!id){
@@ -146,6 +152,8 @@ exports.updateHotel = async(req, res) => {
                 address = ?,
                 opening_date = ?,
                 main_image = ?,
+                description = ?,
+                nearby_info = ?,
                 status = 0
             WHERE id = ?
         `;
@@ -157,6 +165,8 @@ exports.updateHotel = async(req, res) => {
             address,
             opening_date,
             main_image ?? null,
+            description ?? null,
+            nearby_info ?? null,
             id
         ];
 
