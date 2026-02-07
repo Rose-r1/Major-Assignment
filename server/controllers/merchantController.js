@@ -53,3 +53,68 @@ exports.addHotel = async (req, res) => {
         });
     }
 };
+
+//获取我的酒店列表
+exports.myHotels = async (req, res) => {
+    try {
+        const { merchant_id } = req.query
+
+        if (!merchant_id) {
+            return res.status(400).json({
+                message: '缺少商户ID'
+            });
+        }
+
+        const sql = `
+            SELECT *
+            FROM hotels
+            WHERE merchant_id = ?
+            ORDER BY id ASC
+        `;
+
+        const [hotels] = await db.execute(sql, [merchant_id]);
+
+        res.json({
+            code: 200,
+            data: hotels
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: '获取我的酒店列表失败',
+            error: error.message
+        });
+    }
+};
+
+//获取酒店详情
+exports.getHotelById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const sql = `
+            SELECT *
+            FROM hotels
+            WHERE id = ?
+        `;
+
+        const [result] = await db.execute(sql, [id]);
+
+        if (result.length === 0) {
+            return res.status(404).json({
+                message: '酒店不存在'
+            });
+        }
+
+        res.json({
+            code: 200,
+            data: result[0]
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: '获取酒店失败',
+            error: error.message
+        });
+    }
+};
