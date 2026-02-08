@@ -75,3 +75,83 @@ exports.auditHotel = async(req, res) => {
         });
     }
 };
+
+// 全量酒店管理
+exports.getHotels = async (req, res) => {
+    try {
+        const { status, keyword } = req.query;
+
+        let sql = `
+            SELECT *
+            FROM hotels
+            WHERE 1=1
+        `;
+        let params = [];
+
+        // 状态筛选（可选）
+        if (status !== undefined) {
+            sql += ` AND status = ?`;
+            params.push(status);
+        }
+
+        // 关键词搜索（可选）
+        if (keyword) {
+            sql += ` AND (name_cn LIKE ? OR address LIKE ?)`;
+            params.push(`%${keyword}%`, `%${keyword}%`);
+        }
+
+        sql += ` ORDER BY id ASC`;
+
+        const [rows] = await db.execute(sql, params);
+
+        res.json({
+            code: 200,
+            total: rows.length,
+            data: rows
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: '获取酒店列表失败',
+            error: error.message
+        });
+    }
+};
+
+// 下线酒店
+exports.forceOfflineHotel = async(req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                message: '缺少参数'
+            });
+        }
+
+        const sql = `
+            UPDATE hotels
+            SET status = 2
+            WHERE id = ?
+        `;
+
+        const [result] = await db.execute(sql, [id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                message: '酒店不存在'
+            });
+        }
+
+        res.json({
+            code: 200,
+            message: "已强制将酒店下线"
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: '审核失败',
+            error: error.message
+        });
+    }
+};
