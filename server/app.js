@@ -5,6 +5,7 @@ require('dotenv').config();
 const authRoute = require('./routes/authRoute');
 const hotelRoute = require('./routes/hotelRoute');
 const merchantRoute = require('./routes/merchantRoute');
+const adminRoute = require('./routes/adminRoute');
 
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api/auth', authRoute);     // 身份验证相关接口
 app.use('/api/hotels', hotelRoute);   // 酒店展示及商户操作接口
 app.use('/api/merchant', merchantRoute) //商户端接口
+app.use('/api/admin', adminRoute)   //管理员端接口
 
 
 app.use((err, req, res, next) => {
