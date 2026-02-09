@@ -1,12 +1,14 @@
 import { View, Text, Image, Input, Button } from '@tarojs/components'
 import Taro, { useLoad, useDidShow } from '@tarojs/taro'
 import { useState } from 'react'
+import CitySelector from '../../components/CitySelector' // 引入组件
 import './index.scss'
 
 export default function Index() {
   const [activeTab, setActiveTab] = useState(0)
   const [showLoginModal, setShowLoginModal] = useState(false); // 登录弹窗状态
   const [city, setCity] = useState('上海'); // 默认为上海
+  const [showCitySelector, setShowCitySelector] = useState(false); // 城市选择弹窗状态
 
   // 模拟日期
   const today = new Date();
@@ -20,19 +22,6 @@ export default function Index() {
   useDidShow(() => {
     console.log('Page shown.')
     checkLoginStatus();
-
-    // 监听城市选择事件
-    const onCitySelected = (selectedCity) => {
-      console.log('Received city:', selectedCity);
-      setCity(selectedCity);
-    };
-
-    Taro.eventCenter.on('citySelected', onCitySelected);
-
-    // 清理监听（可选，防止重复监听）
-    return () => {
-      Taro.eventCenter.off('citySelected', onCitySelected);
-    }
   })
 
   // 检查登录状态
@@ -52,7 +41,12 @@ export default function Index() {
   };
 
   const handleCitySelectorClick = () => {
-    Taro.navigateTo({ url: '/pages/city/index' });
+    setShowCitySelector(true); // 打开弹窗
+  };
+
+  const handleCitySelect = (selectedCity: string) => {
+    setCity(selectedCity);
+    setShowCitySelector(false); // 关闭弹窗
   };
 
   return (
@@ -183,6 +177,12 @@ export default function Index() {
         </View>
       )}
 
+      {/* City Selector Modal */}
+      <CitySelector
+        visible={showCitySelector}
+        onClose={() => setShowCitySelector(false)}
+        onSelect={handleCitySelect}
+      />
     </View>
   )
 }

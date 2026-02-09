@@ -61,7 +61,6 @@ export default function CitySelector({ visible, onClose, onSelect }: CitySelecto
                 {/* 顶部搜索栏 */}
                 <View className='search-bar'>
                     <View className='search-input-box'>
-                        <Text className='icon'>🔍</Text>
                         <Text className='placeholder'>城市/拼音</Text>
                     </View>
                 </View>
