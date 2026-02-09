@@ -38,8 +38,10 @@ const upload = multer({
     }
 });
 
+const authMiddleware = require('../middleware/authMiddleware');
+
 // 上传接口
-router.post('/common/upload', upload.single('image'), (req, res) => {
+router.post('/common/upload', authMiddleware, upload.single('image'), (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ success: false, message: '未选择文件' });

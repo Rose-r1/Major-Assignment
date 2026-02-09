@@ -4,9 +4,12 @@ module.exports = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     let token;
     if (authHeader) {
-        if (authHeader.startsWith('Bearer ')) {
-            token = authHeader.split(' ')[1];
+        // 允许 Bearer 或 bearer (大小写不敏感)
+        const parts = authHeader.split(' ');
+        if (parts.length === 2 && parts[0].toLowerCase() === 'bearer') {
+            token = parts[1];
         } else {
+            // 尝试直接读取（兼容仅发送 token 的情况）
             token = authHeader;
         }
     }

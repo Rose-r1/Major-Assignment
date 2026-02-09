@@ -27,7 +27,7 @@ app.use('/api/auth', authRoute);     // 身份验证相关接口 (Login/Register
 app.use('/api/hotels', authMiddleware, hotelRoute);   // 酒店展示及商户操作接口 (Protected)
 app.use('/api/merchant', authMiddleware, merchantRoute); //商户端接口 (Protected)
 app.use('/api/admin', authMiddleware, adminRoute);   //管理员端接口 (Protected)
-app.use('/api', authMiddleware, uploadRouter); // 路由身份验证
+app.use('/api', uploadRouter); // 路由身份验证移至路由内部，防止拦截其他错误路径
 
 
 app.use((err, req, res, next) => {
