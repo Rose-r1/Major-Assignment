@@ -1,0 +1,109 @@
+@import "../../app.scss";
+
+.login-page {
+    padding: 48px;
+    background-color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+
+    .header {
+        margin-top: 80px;
+        margin-bottom: 80px;
+
+        .title {
+            font-size: 56px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .subtitle {
+            font-size: 30px;
+            color: #999;
+        }
+    }
+
+    .form-container {
+        .input-group {
+            margin-bottom: 48px;
+            display: flex;
+            /* 改为 flex 布局 */
+            align-items: center;
+            /* 垂直居中对齐 */
+            background: #f5f7fa;
+            /* 背景色移到容器上，看起来更像一个整体 */
+            border-radius: 44px;
+            padding: 0 40px;
+            height: 88px;
+            /* 固定高度 */
+
+            .label {
+                font-size: 32px;
+                color: #333;
+                font-weight: bold;
+
+                margin-right: 32px;
+                width: 70px;
+                /* 固定宽度 */
+                text-align: justify;
+                /* 两端对齐 */
+                text-align-last: justify;
+
+                flex-shrink: 0;
+            }
+
+            .input {
+                flex: 1;
+                /* 输入框占据剩余空间 */
+                height: 100%;
+                /* 充满容器高度 */
+                background: transparent;
+                /* 去掉输入框自带背景 */
+                font-size: 32px;
+                padding: 0;
+                color: #333;
+                display: flex;
+                /* Flex 居中 */
+                align-items: center;
+                /* 垂直居中 */
+            }
+
+            // 针对 placeholderClass='placeholder'
+            .placeholder {
+                color: #ccc;
+            }
+        }
+
+        .btn-login {
+            width: 100%;
+            height: 96px;
+            background: linear-gradient(90deg, #0066f6 0%, #004ecc 100%);
+            border-radius: 48px;
+            color: white;
+            font-size: 34px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 80px;
+            box-shadow: 0 10px 20px rgba(0, 102, 246, 0.3);
+
+            &:active {
+                opacity: 0.9;
+            }
+        }
+
+        .footer-links {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+
+            .link {
+                font-size: 28px;
+                color: #0066f6;
+            }
+        }
+    }
+}
