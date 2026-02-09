@@ -1,5 +1,5 @@
 import { View, Text, Image, Input, Button } from '@tarojs/components'
-import Taro, { useLoad, useDidShow } from '@tarojs/taro'
+import Taro, { useDidShow } from '@tarojs/taro'
 import { useState } from 'react'
 import CitySelector from '../../components/CitySelector' // 引入组件
 import './index.scss'
@@ -90,7 +90,7 @@ export default function Index() {
                 placeholderClass='placeholder'
               />
             </View>
-            <Text className='location-icon'>📍</Text>
+            {/* <Text className='location-icon'>📍</Text> */}
           </View>
 
           {/* Date Picker */}

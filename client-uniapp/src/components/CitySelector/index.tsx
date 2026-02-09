@@ -1,5 +1,6 @@
 import { View, Text, ScrollView } from '@tarojs/components'
-import { useState } from 'react'
+import Taro from '@tarojs/taro'
+import { useState, useEffect } from 'react'
 import './index.scss'
 
 const HOT_CITIES = ['北京', '上海', '广州', '深圳', '杭州', '成都', '武汉', '南京', '西安', '重庆', '苏州', '天津', '长沙'];
@@ -36,10 +37,68 @@ interface CitySelectorProps {
 
 export default function CitySelector({ visible, onClose, onSelect }: CitySelectorProps) {
     const [scrollIntoView, setScrollIntoView] = useState('');
+    const [locationCity, setLocationCity] = useState('定位中...');
+
+    useEffect(() => {
+        if (visible) {
+            handleGetLocation();
+        }
+    }, [visible]);
+
+    const handleGetLocation = () => {
+        setLocationCity('定位中...');
+        Taro.getLocation({
+            type: 'wgs84',
+            success: (res) => {
+                // 调用后端接口
+                Taro.request({
+                    url: 'http://localhost:5000/api/location/reverse-geocode',
+                    method: 'GET',
+                    data: {
+                        lat: res.latitude,
+                        lng: res.longitude
+                    },
+                    success: (apiRes) => {
+                        if (apiRes.statusCode === 200 && apiRes.data.code === 200) {
+                            const addressComponent = apiRes.data.data.addressComponent;
+                            let newCity = addressComponent.city;
+                            const province = addressComponent.province;
+
+                            if (Array.isArray(newCity) || !newCity) {
+                                newCity = (typeof province === 'string' && province.length > 0) ? province : '';
+                            }
+
+                            if (typeof newCity === 'string' && newCity) {
+                                if (newCity.endsWith('市')) {
+                                    newCity = newCity.slice(0, -1);
+                                }
+                                setLocationCity(newCity);
+                            } else {
+                                setLocationCity('定位失败');
+                            }
+                        } else {
+                            setLocationCity('定位失败');
+                        }
+                    },
+                    fail: () => {
+                        setLocationCity('定位失败');
+                    }
+                });
+            },
+            fail: () => {
+                // H5 或权限拒绝
+                setLocationCity('定位失败');
+            }
+        });
+    };
 
     if (!visible) return null;
 
     const handleCityClick = (city: string) => {
+        if (city === '定位中...' || city === '定位失败') {
+            if (city === '定位失败') handleGetLocation(); // 点击失败重试
+            return;
+        }
         onSelect(city);
         onClose();
     }
@@ -72,6 +131,21 @@ export default function CitySelector({ visible, onClose, onSelect }: CitySelecto
                         scrollWithAnimation
                         className='city-scroll-view'
                     >
+                        {/* 当前定位 */}
+                        <View id="CURRENT" className='section'>
+                            <Text className='section-title'>当前定位</Text>
+                            <View className='grid-list'>
+                                <View className='grid-item' style={{ minWidth: 'auto', padding: '10px 20px', height: 'auto', flexDirection: 'column' }} onClick={() => handleCityClick(locationCity)}>
+                                    {locationCity === '定位中...' ? '定位中...' : locationCity === '定位失败' ? (
+                                        <>
+                                            <Text>定位失败</Text>
+                                            <Text style={{ fontSize: '15px', color: '#666', marginTop: '2px' }}>(点击重试)</Text>
+                                        </>
+                                    ) : `${locationCity}`}
+                                </View>
+                            </View>
+                        </View>
+
                         {/* 热门城市 */}
                         <View id="HOT" className='section'>
                             <Text className='section-title'>热门城市</Text>
@@ -102,6 +176,7 @@ export default function CitySelector({ visible, onClose, onSelect }: CitySelecto
 
                     {/* 右侧索引栏 */}
                     <View className='index-bar'>
+                        <View onClick={(e) => handleIndexClick('CURRENT', e)}>定</View>
                         <View onClick={(e) => handleIndexClick('HOT', e)}>热</View>
                         {CITY_LIST.map(g => (
                             <View key={g.title} onClick={(e) => handleIndexClick(g.title, e)}>
