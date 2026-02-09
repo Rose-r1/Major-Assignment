@@ -1,0 +1,313 @@
+@import '../../app.scss';
+
+.index-page {
+    min-height: 100vh;
+    background-color: #f5f7fa;
+    display: flex;
+    flex-direction: column;
+
+    // Banner Area
+    .banner-section {
+        width: 100%;
+        height: 380px;
+        position: relative;
+        background: linear-gradient(180deg, #0066f6 0%, #2b85fc 100%);
+
+        .banner-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.8;
+        }
+    }
+
+    // Search Card Area
+    .search-card-container {
+        padding: 0 24px;
+        margin-top: -100px; // Overlap with banner
+        position: relative;
+        z-index: 10;
+
+        .search-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+            // Tabs
+            .tabs-row {
+                display: flex;
+                margin-bottom: 32px;
+                border-bottom: 1px solid #f0f0f0;
+                padding-bottom: 16px;
+
+                .tab-item {
+                    font-size: 30px;
+                    color: #666;
+                    margin-right: 48px;
+                    font-weight: 500;
+                    position: relative;
+
+                    &.active {
+                        color: #0066f6;
+                        font-weight: bold;
+                        font-size: 34px;
+
+                        &::after {
+                            content: '';
+                            position: absolute;
+                            bottom: -18px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            width: 40px;
+                            height: 6px;
+                            background: #0066f6;
+                            border-radius: 4px;
+                        }
+                    }
+                }
+            }
+
+            // Location Row
+            .location-row {
+                display: flex;
+                align-items: center;
+                border-bottom: 1px solid #f0f0f0;
+                padding: 24px 0;
+                margin-bottom: 20px;
+
+                .city-selector {
+                    font-size: 36px;
+                    font-weight: bold;
+                    color: #333;
+                    margin-right: 24px;
+                    display: flex;
+                    align-items: center;
+                    min-width: 120px;
+
+                    .arrow-down {
+                        font-size: 24px;
+                        color: #999;
+                        margin-left: 8px;
+                    }
+                }
+
+                .search-input-box {
+                    flex: 1;
+
+                    .search-input {
+                        font-size: 30px;
+                        color: #333;
+                        width: 100%;
+                    }
+
+                    .placeholder {
+                        color: #ccc;
+                    }
+                }
+
+                .location-icon {
+                    font-size: 36px;
+                    color: #0066f6;
+                    margin-left: 16px;
+                }
+            }
+
+            // Date Row
+            .date-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid #f0f0f0;
+                padding: 24px 0;
+                margin-bottom: 20px;
+
+                .date-item {
+                    display: flex;
+                    flex-direction: column;
+
+                    .label {
+                        font-size: 24px;
+                        color: #999;
+                        margin-bottom: 8px;
+                    }
+
+                    .date-val {
+                        font-size: 36px;
+                        font-weight: bold;
+                        color: #333;
+
+                        .weekday {
+                            font-size: 24px;
+                            color: #333;
+                            font-weight: normal;
+                            margin-left: 8px;
+                        }
+                    }
+                }
+
+                .night-count {
+                    border: 1px solid #eee;
+                    border-radius: 20px;
+                    padding: 4px 16px;
+                    font-size: 22px;
+                    color: #333;
+                }
+            }
+
+            // Filter Row (Price/Star)
+            .filter-row {
+                border-bottom: 1px solid #f0f0f0;
+                padding: 24px 0;
+                margin-bottom: 32px;
+                display: flex;
+                align-items: center;
+
+                .filter-label {
+                    font-size: 30px;
+                    color: #ccc;
+                }
+            }
+
+            // Tags Row
+            .tags-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 16px;
+                margin-bottom: 40px;
+
+                .tag-item {
+                    background: #f7f8fa;
+                    color: #666;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    font-size: 24px;
+                }
+            }
+
+            // Search Button
+            .search-btn {
+                width: 100%;
+                height: 88px;
+                background: linear-gradient(90deg, #0066f6 0%, #004ecc 100%);
+                border-radius: 44px;
+                color: white;
+                font-size: 34px;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 8px 16px rgba(0, 102, 246, 0.3);
+
+                &:active {
+                    opacity: 0.9;
+                }
+            }
+        }
+    }
+
+    // Recommendation Section
+    .recommend-section {
+        padding: 0 24px 40px;
+
+        .section-title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 24px;
+            padding-left: 12px;
+            position: relative;
+
+            &::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 6px;
+                height: 28px;
+                background: #0066f6;
+                border-radius: 4px;
+            }
+        }
+
+        .hotel-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+
+            .hotel-card {
+                background: white;
+                border-radius: 16px;
+                overflow: hidden;
+                display: flex;
+                padding: 24px;
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+
+                .hotel-thumb {
+                    width: 200px;
+                    height: 200px;
+                    background: #eee;
+                    border-radius: 12px;
+                    margin-right: 24px;
+                    object-fit: cover;
+                }
+
+                .hotel-info {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+
+                    .name {
+                        font-size: 32px;
+                        font-weight: bold;
+                        color: #333;
+                        line-height: 1.4;
+                    }
+
+                    .score-row {
+                        display: flex;
+                        align-items: center;
+                        gap: 16px;
+
+                        .score {
+                            color: #0066f6;
+                            font-weight: bold;
+                            font-size: 30px;
+                        }
+
+                        .comment {
+                            color: #999;
+                            font-size: 24px;
+                        }
+                    }
+
+                    .price-row {
+                        display: flex;
+                        align-items: flex-end;
+
+                        .currency {
+                            color: #ff4d4f;
+                            font-size: 24px;
+                            margin-bottom: 4px;
+                        }
+
+                        .price {
+                            color: #ff4d4f;
+                            font-size: 40px;
+                            font-weight: bold;
+                            margin-right: 8px;
+                        }
+
+                        .unit {
+                            color: #999;
+                            font-size: 24px;
+                            margin-bottom: 4px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
