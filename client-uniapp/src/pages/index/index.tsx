@@ -1,10 +1,11 @@
 import { View, Text, Image, Input, Button } from '@tarojs/components'
-import { useLoad } from '@tarojs/taro'
+import Taro, { useLoad, useDidShow } from '@tarojs/taro'
 import { useState } from 'react'
 import './index.scss'
 
 export default function Index() {
   const [activeTab, setActiveTab] = useState(0)
+  const [showLoginModal, setShowLoginModal] = useState(false); // 登录弹窗状态
 
   // 模拟日期
   const today = new Date();
@@ -15,9 +16,26 @@ export default function Index() {
     return `${date.getMonth() + 1}月${date.getDate()}日`
   }
 
-  useLoad(() => {
-    console.log('Page loaded.')
+  useDidShow(() => {
+    console.log('Page shown.')
+    checkLoginStatus();
   })
+
+  // 检查登录状态
+  const checkLoginStatus = () => {
+    const token = Taro.getStorageSync('token');
+    if (!token) {
+      setShowLoginModal(true);
+    } else {
+      setShowLoginModal(false);
+    }
+  };
+
+  const handleGoLogin = () => {
+    console.log('跳转去登录');
+    Taro.navigateTo({ url: '/pages/login/index' })
+    // setShowLoginModal(false); // 不需要手动关闭，回来后如果已登录，自然不显示
+  };
 
   return (
     <View className='index-page'>
@@ -130,6 +148,22 @@ export default function Index() {
           ))}
         </View>
       </View>
+
+      {/* Login Modal */}
+      {/* Login Bar (Fixed Bottom) */}
+      {showLoginModal && (
+        <View className='fixed-login-bar' onClick={handleGoLogin}>
+          {/* <View className='icon-box'>
+            <Text>🎁</Text>
+          </View> */}
+          <View className='text-content'>
+            <Text className='title'>登录解锁更低价</Text>
+          </View>
+          <View className='btn-action'>
+            立即登录
+          </View>
+        </View>
+      )}
 
     </View>
   )
