@@ -6,6 +6,7 @@ import './index.scss'
 export default function Index() {
   const [activeTab, setActiveTab] = useState(0)
   const [showLoginModal, setShowLoginModal] = useState(false); // 登录弹窗状态
+  const [city, setCity] = useState('上海'); // 默认为上海
 
   // 模拟日期
   const today = new Date();
@@ -19,6 +20,19 @@ export default function Index() {
   useDidShow(() => {
     console.log('Page shown.')
     checkLoginStatus();
+
+    // 监听城市选择事件
+    const onCitySelected = (selectedCity) => {
+      console.log('Received city:', selectedCity);
+      setCity(selectedCity);
+    };
+
+    Taro.eventCenter.on('citySelected', onCitySelected);
+
+    // 清理监听（可选，防止重复监听）
+    return () => {
+      Taro.eventCenter.off('citySelected', onCitySelected);
+    }
   })
 
   // 检查登录状态
@@ -35,6 +49,10 @@ export default function Index() {
     console.log('跳转去登录');
     Taro.navigateTo({ url: '/pages/login/index' })
     // setShowLoginModal(false); // 不需要手动关闭，回来后如果已登录，自然不显示
+  };
+
+  const handleCitySelectorClick = () => {
+    Taro.navigateTo({ url: '/pages/city/index' });
   };
 
   return (
@@ -67,8 +85,8 @@ export default function Index() {
 
           {/* Location / Keyword */}
           <View className='location-row'>
-            <View className='city-selector'>
-              <Text>上海</Text>
+            <View className='city-selector' onClick={handleCitySelectorClick}>
+              <Text>{city}</Text>
               <Text className='arrow-down'>▼</Text>
             </View>
             <View className='search-input-box'>
