@@ -71,7 +71,20 @@ exports.getMe = async (req, res) => {
     }
 };
 
+const blacklist = require('../utils/blacklist');
+
 exports.logout = (req, res) => {
+    // 获取 Token
+    const authHeader = req.headers['authorization'];
+    if (authHeader) {
+        const parts = authHeader.split(' ');
+        const token = parts.length === 2 ? parts[1] : authHeader;
+
+        if (token) {
+            blacklist.add(token);
+        }
+    }
+
     res.json({
         code: 200,
         message: '退出登录成功'

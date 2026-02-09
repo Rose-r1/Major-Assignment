@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const blacklist = require('../utils/blacklist');
 
 module.exports = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -15,6 +16,11 @@ module.exports = (req, res, next) => {
     }
 
     if (!token) return res.status(401).json({ message: '未授权，请提供 Token' });
+
+    // 检查是否在黑名单中
+    if (blacklist.has(token)) {
+        return res.status(401).json({ message: 'Token 已失效（已退出登录）' });
+    }
 
     // 2. 验证 Token
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
