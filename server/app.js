@@ -6,6 +6,7 @@ const authRoute = require('./routes/authRoute');
 const hotelRoute = require('./routes/hotelRoute');
 const merchantRoute = require('./routes/merchantRoute');
 const adminRoute = require('./routes/adminRoute');
+const bannerRoute = require('./routes/bannerRoute');
 const uploadRouter = require('./routes/upload');
 const path = require('path');
 
@@ -27,6 +28,7 @@ app.use('/api/auth', authRoute);     // 身份验证相关接口 (Login/Register
 app.use('/api/hotels', authMiddleware, hotelRoute);   // 酒店展示及商户操作接口 (Protected)
 app.use('/api/merchant', authMiddleware, merchantRoute); //商户端接口 (Protected)
 app.use('/api/admin', authMiddleware, adminRoute);   //管理员端接口 (Protected)
+app.use('/api/banners', bannerRoute); // Banner 接口 (内部区分公开/私有)
 app.use('/api', uploadRouter); // 路由身份验证移至路由内部，防止拦截其他错误路径
 
 
