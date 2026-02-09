@@ -70,3 +70,10 @@ exports.getMe = async (req, res) => {
         res.status(500).json({ message: '获取用户信息失败' });
     }
 };
+
+exports.logout = (req, res) => {
+    res.json({
+        code: 200,
+        message: '退出登录成功'
+    });
+};
