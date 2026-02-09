@@ -1,13 +1,8 @@
-# Dependencies
 node_modules/
 .pnpm-store
-
-# Production
 dist/
 build/
 deploy_versions/
-
-# Misc
 .DS_Store
 .env
 .env.*
