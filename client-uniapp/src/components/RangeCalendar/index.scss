@@ -157,6 +157,11 @@
                                 left: 50%;
                             }
 
+                            // 相邻时不显示连接背景
+                            &.adjacent::before {
+                                display: none;
+                            }
+
                             .day-num,
                             .day-status {
                                 color: white !important;
@@ -180,6 +185,11 @@
                             // Clip the range background on the right
                             &::before {
                                 right: 50%;
+                            }
+
+                            // 相邻时不显示连接背景
+                            &.adjacent::before {
+                                display: none;
                             }
 
                             .day-num,

@@ -99,12 +99,18 @@ export default function RangeCalendar({ visible, onClose, onConfirm, initialStar
 
         if (isSameDay(date, new Date())) classes.push('today');
 
+        // 判断是否相邻（只差1天）
+        const isAdjacent = startDate && endDate &&
+            Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) === 1;
+
         if (startDate && isSameDay(date, startDate)) {
             classes.push('range-start');
+            if (isAdjacent) classes.push('adjacent');
         }
 
         if (endDate && isSameDay(date, endDate)) {
             classes.push('range-end');
+            if (isAdjacent) classes.push('adjacent');
         }
 
         if (startDate && endDate && date > startDate && date < endDate) {
