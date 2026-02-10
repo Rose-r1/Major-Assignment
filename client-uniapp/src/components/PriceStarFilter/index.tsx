@@ -1,5 +1,5 @@
 import { View, Text, Input, ScrollView } from '@tarojs/components'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import './index.scss'
 
 interface PriceStarFilterProps {
@@ -18,22 +18,18 @@ const PRICE_TAGS = [
 ];
 
 const STAR_OPTIONS = [
-    { label: '2钻/星及以下', sub: '经济', value: '2' },
+    { label: '2钻/星', sub: '经济', value: '2' },
     { label: '3钻/星', sub: '舒适', value: '3' },
     { label: '4钻/星', sub: '高档', value: '4' },
     { label: '5钻/星', sub: '豪华', value: '5' },
     { label: '金钻酒店', sub: '奢华体验', value: 'gold' },
-    // { label: '铂钻酒店', sub: '超奢品质', value: 'platinum' }
+    { label: '铂钻酒店', sub: '超奢品质', value: 'platinum' }
 ];
 
 export default function PriceStarFilter({ visible, onClose, onConfirm }: PriceStarFilterProps) {
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
     const [selectedStars, setSelectedStars] = useState<string[]>([]);
-    // 简单的“无限”高价标识
-    const MAX_PRICE_DISPLAY = '1300以上';
-
-    // 当弹窗打开时，可以在这里重置或同步状态（暂略，假设每次打开是新的或者保持上次状态需外部传入initial值）
 
     if (!visible) return null;
 
@@ -68,55 +64,44 @@ export default function PriceStarFilter({ visible, onClose, onConfirm }: PriceSt
                 <View className='header'>
                     <Text className='close' onClick={onClose}>×</Text>
                     <Text className='title'>选择价格/星级</Text>
-                    <View style={{ width: '30px' }}></View> {/* 占位，保持标题居中 */}
+                    <View style={{ width: '40px' }}></View>
                 </View>
 
                 <ScrollView scrollY className='body'>
 
                     {/* 价格部分 */}
                     <View className='section'>
-                        <Text className='section-title'>价格</Text>
-                        {/* 模拟滑块条 (视觉) */}
-                        <View className='slider-track-visual'>
-                            <View className='track-bg'></View>
-                            <View className='track-active' style={{ left: '0%', width: '100%' }}></View>
-                            <View className='knob left' style={{ left: '0%' }}></View>
-                            <View className='knob right' style={{ left: '100%' }}></View>
+                        <View className='row-title'>
+                            <Text className='section-title'>价格</Text>
                         </View>
 
+
                         <View className='price-inputs'>
-                            <View className='input-box'>
-                                <Text>最低</Text>
-                                <View className='val-row'>
-                                    <Text>¥</Text>
-                                    <Input
-                                        className='input'
-                                        value={minPrice}
-                                        onInput={e => setMinPrice(e.detail.value)}
-                                        type='number'
-                                        placeholder='0'
-                                    />
-                                </View>
+                            <View className='input-wrapper'>
+                                <Input
+                                    className='input'
+                                    value={minPrice}
+                                    onInput={e => setMinPrice(e.detail.value)}
+                                    type='number'
+                                    placeholder='最低价'
+                                    placeholderStyle='color:#ccc;'
+                                />
                             </View>
                             <Text className='divider'>—</Text>
-                            <View className='input-box'>
-                                <Text>最高</Text>
-                                <View className='val-row'>
-                                    <Text>¥</Text>
-                                    <Input
-                                        className='input'
-                                        value={maxPrice}
-                                        onInput={e => setMaxPrice(e.detail.value)}
-                                        type='number'
-                                        placeholder='不限'
-                                    />
-                                </View>
+                            <View className='input-wrapper'>
+                                <Input
+                                    className='input'
+                                    value={maxPrice}
+                                    onInput={e => setMaxPrice(e.detail.value)}
+                                    type='number'
+                                    placeholder='最高价'
+                                    placeholderStyle='color:#ccc;'
+                                />
                             </View>
                         </View>
 
                         <View className='tags-grid'>
                             {PRICE_TAGS.map((tag, i) => {
-                                // 简单的选中判断逻辑：如果当前输入的 min/max 和 tag 完全一致则高亮
                                 const isSelected = minPrice === tag.min && maxPrice === tag.max;
                                 return (
                                     <View
@@ -135,7 +120,6 @@ export default function PriceStarFilter({ visible, onClose, onConfirm }: PriceSt
                     <View className='section'>
                         <View className='row-title'>
                             <Text className='section-title'>星级/钻级</Text>
-                            <Text className='sub-link'>国内星级/钻级说明 &gt;</Text>
                         </View>
 
                         <View className='stars-grid'>
@@ -150,10 +134,13 @@ export default function PriceStarFilter({ visible, onClose, onConfirm }: PriceSt
                                 </View>
                             ))}
                         </View>
-                        <View style={{ padding: '10px 0', fontSize: '24px', color: '#999', lineHeight: '1.5' }}>
+                        <View className='info-text'>
                             酒店未参加星级评定但设施服务达到相应水平，采用钻级分类，仅供参考
                         </View>
                     </View>
+
+                    {/* 底部占位，防止被 footer 遮挡 */}
+                    <View className='body-bottom-spacer'></View>
 
                 </ScrollView>
 
