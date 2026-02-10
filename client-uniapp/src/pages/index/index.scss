@@ -193,6 +193,15 @@
                     padding: 10px 20px;
                     border-radius: 8px;
                     font-size: 24px;
+                    border: 1px solid transparent;
+                    transition: all 0.2s;
+
+                    &.active {
+                        background: #F0F8FF;
+                        color: #0066f6;
+                        border-color: #0066f6;
+                        font-weight: 500;
+                    }
                 }
             }
 
@@ -212,6 +221,19 @@
 
                 &:active {
                     opacity: 0.9;
+                }
+            }
+
+            // 暂未开放提示
+            .coming-soon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 80px 0;
+
+                .coming-soon-text {
+                    font-size: 30px;
+                    color: #999;
                 }
             }
         }
