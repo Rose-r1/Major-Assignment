@@ -91,9 +91,11 @@ export default function Index() {
     // 已登录，跳转到酒店列表页
     const params = [
       `city=${encodeURIComponent(city)}`,
-      `checkIn=${checkInDate.toISOString()}`,
-      `checkOut=${checkOutDate.toISOString()}`,
+      `checkIn=${checkInDate.getTime()}`,
+      `checkOut=${checkOutDate.getTime()}`,
       `keyword=${encodeURIComponent(keyword)}`,
+      `tags=${encodeURIComponent(JSON.stringify(selectedTags))}`,
+      `priceFilter=${encodeURIComponent(JSON.stringify(priceFilter))}`
     ].join('&');
     Taro.navigateTo({ url: `/pages/hotelList/index?${params}` });
   };
