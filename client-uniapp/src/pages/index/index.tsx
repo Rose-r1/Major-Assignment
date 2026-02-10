@@ -2,6 +2,7 @@ import { View, Text, Image, Input, Button } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { useState } from 'react'
 import CitySelector from '../../components/CitySelector' // 引入组件
+import PriceStarFilter from '../../components/PriceStarFilter' // 引入价格星级组件
 import './index.scss'
 
 export default function Index() {
@@ -9,6 +10,8 @@ export default function Index() {
   const [showLoginModal, setShowLoginModal] = useState(false); // 登录弹窗状态
   const [city, setCity] = useState('上海'); // 默认为上海
   const [showCitySelector, setShowCitySelector] = useState(false); // 城市选择弹窗状态
+  const [showPriceFilter, setShowPriceFilter] = useState(false); // 价格星级弹窗状态
+  const [priceFilter, setPriceFilter] = useState<{ minPrice: string, maxPrice: string, starRatings: string[] } | null>(null);
 
   // 模拟日期
   const today = new Date();
@@ -47,6 +50,39 @@ export default function Index() {
   const handleCitySelect = (selectedCity: string) => {
     setCity(selectedCity);
     setShowCitySelector(false); // 关闭弹窗
+  };
+
+  const handlePriceClick = () => {
+    setShowPriceFilter(true);
+  };
+
+  const handlePriceConfirm = (result) => {
+    console.log('Price/Star Filter Result:', result);
+    // 判断是否有实际选择内容
+    const hasSelection = result.minPrice || result.maxPrice || result.starRatings.length > 0;
+    setPriceFilter(hasSelection ? result : null);
+  };
+
+  // 星级值 -> 显示文字的映射
+  const starLabelMap: Record<string, string> = {
+    '2': '2钻/星', '3': '3钻/星', '4': '4钻/星', '5': '5钻/星',
+    'gold': '金钻', 'platinum': '铂钻'
+  };
+
+  // 生成筛选结果的显示文字
+  const getFilterDisplayText = () => {
+    if (!priceFilter) return '';
+    const parts: string[] = [];
+    if (priceFilter.minPrice || priceFilter.maxPrice) {
+      const min = priceFilter.minPrice || '0';
+      const max = priceFilter.maxPrice ? `¥${priceFilter.maxPrice}` : '不限';
+      parts.push(`¥${min}-${max}`);
+    }
+    if (priceFilter.starRatings.length > 0) {
+      const labels = priceFilter.starRatings.map(v => starLabelMap[v] || v);
+      parts.push(labels.join('|'));
+    }
+    return parts.join(' | ');
   };
 
   return (
@@ -90,7 +126,6 @@ export default function Index() {
                 placeholderClass='placeholder'
               />
             </View>
-            {/* <Text className='location-icon'>📍</Text> */}
           </View>
 
           {/* Date Picker */}
@@ -115,8 +150,12 @@ export default function Index() {
           </View>
 
           {/* Price / Star Filter */}
-          <View className='filter-row'>
-            <Text className='filter-label'>价格/星级</Text>
+          <View className='filter-row' onClick={handlePriceClick}>
+            {priceFilter ? (
+              <Text className='filter-value'>{getFilterDisplayText()}</Text>
+            ) : (
+              <Text className='filter-label'>价格/星级</Text>
+            )}
             <Text style={{ marginLeft: 'auto', color: '#999' }}>ᐳ</Text>
           </View>
 
@@ -165,9 +204,6 @@ export default function Index() {
       {/* Login Bar (Fixed Bottom) */}
       {showLoginModal && (
         <View className='fixed-login-bar' onClick={handleGoLogin}>
-          {/* <View className='icon-box'>
-            <Text>🎁</Text>
-          </View> */}
           <View className='text-content'>
             <Text className='title'>登录解锁更低价</Text>
           </View>
@@ -182,6 +218,13 @@ export default function Index() {
         visible={showCitySelector}
         onClose={() => setShowCitySelector(false)}
         onSelect={handleCitySelect}
+      />
+
+      {/* Price Star Filter Modal */}
+      <PriceStarFilter
+        visible={showPriceFilter}
+        onClose={() => setShowPriceFilter(false)}
+        onConfirm={handlePriceConfirm}
       />
     </View>
   )
