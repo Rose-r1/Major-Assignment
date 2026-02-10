@@ -9,6 +9,12 @@
     }
 
     // ==================== 顶部信息栏 ====================
+    // 筛选容器，用于定位
+    .filter-container {
+        position: relative;
+        z-index: 301; // 必须高于 mask (200)
+    }
+
     .top-bar {
         display: flex;
         align-items: center;
@@ -76,14 +82,13 @@
                 }
             }
 
-            .cap-keyword {
-                font-size: 28px; // 字体加大
-                color: #999;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
+            .cap-keyword-input {
+                font-size: 28px;
+                color: #333;
                 flex: 1;
                 margin-left: 8px;
+                height: 50px; // 固定高度
+                caret-color: #0066f6; // 光标颜色
             }
         }
     }
@@ -114,16 +119,23 @@
             color: #333;
             margin-left: 4px;
             font-weight: bold;
+            transition: transform 0.3s;
+
+            &.up {
+                transform: rotate(180deg);
+                color: #0066f6; // 选中时也变蓝
+            }
         }
 
-        &.active {
+        &.active,
+        &.selected {
             .sort-text {
-                color: #0066f6;
+                color: #0086F6;
                 font-weight: 600;
             }
 
             .sort-arrow {
-                color: #0066f6;
+                color: #0086F6;
             }
         }
     }
@@ -347,37 +359,58 @@
             }
         }
 
-        // 价格行
-        .price-row {
+        // 价格包裹
+        .price-wrap {
             display: flex;
-            align-items: baseline;
-            justify-content: flex-end;
+            flex-direction: column;
+            align-items: flex-end;
             margin-top: auto;
             padding-top: 10px;
 
-            .old-price {
-                font-size: 22px;
-                color: #ccc;
-                text-decoration: line-through;
-                margin-right: 8px;
+            .price-row {
+                display: flex;
+                align-items: baseline;
+                justify-content: flex-end;
+
+                .old-price {
+                    font-size: 22px;
+                    color: #ccc;
+                    text-decoration: line-through;
+                    margin-right: 8px;
+                }
+
+                .cur-price {
+                    color: #0086f6;
+
+                    .yen {
+                        font-size: 22px;
+                    }
+
+                    .price-big {
+                        font-size: 42px;
+                        font-weight: 600;
+                    }
+
+                    .qi {
+                        font-size: 22px;
+                        color: #0086f6;
+                        margin-left: 2px;
+                    }
+                }
             }
 
-            .cur-price {
-                color: #ff4d00;
+            .price-promo-tag {
+                margin-top: 6px;
+                display: inline-flex;
+                align-items: center;
+                background: #fff8f2;
+                padding: 4px 12px;
+                border-radius: 4px;
 
-                .yen {
-                    font-size: 22px;
-                }
-
-                .price-big {
-                    font-size: 38px;
-                    font-weight: bold;
-                }
-
-                .qi {
+                .tag-text {
                     font-size: 20px;
-                    color: #999;
-                    margin-left: 2px;
+                    color: #ff6a00;
+                    font-weight: 500;
                 }
             }
         }
@@ -392,5 +425,392 @@
     .end-text {
         font-size: 24px;
         color: #ccc;
+    }
+}
+
+.location-filter-panel {
+    position: absolute;
+    top: 100%; // 紧贴父容器底部
+    left: 0;
+    right: 0;
+    height: 60vh;
+    background: #fff;
+    z-index: 302; // Ensure > mask
+    display: flex;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    border-top: none;
+    margin-top: -1px; // 防止出现缝隙
+
+    .left-tabs {
+        width: 200px;
+        background: #f7f8fa;
+        height: 100%;
+
+        .left-tab {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 10px;
+            font-size: 26px;
+            color: #666;
+            position: relative;
+
+            &.active {
+                background: #fff;
+                color: #0066f6;
+                font-weight: 600;
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 6px;
+                    height: 30px;
+                    background: #0066f6;
+                    border-radius: 0 4px 4px 0;
+                }
+            }
+        }
+    }
+
+    .right-list {
+        flex: 1;
+        background: #fff;
+        height: 100%;
+        padding: 0 30px;
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            height: 100px;
+            border-bottom: 1px solid #f5f5f5;
+
+            .item-name {
+                font-size: 28px;
+                color: #333;
+            }
+        }
+
+        .empty-tip {
+            padding: 60px 0;
+            text-align: center;
+            color: #999;
+            font-size: 26px;
+            width: 100%;
+        }
+    }
+}
+
+.price-star-dropdown-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    z-index: 302;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    border-top: none;
+    margin-top: -1px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+
+    // 强制所有 input 水平居中（穿透 Taro Web Component）
+    input,
+    .weui-input,
+    taro-input-core input {
+        text-align: center !important;
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    .scroll-content {
+        padding: 30px;
+        overflow-y: auto;
+    }
+
+    .section {
+        margin-bottom: 40px;
+
+        .section-title {
+            font-size: 28px;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: block;
+        }
+
+        .price-inputs {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+
+            .price-input {
+                flex: 1;
+                height: 72px;
+                line-height: 72px; // 垂直居中
+                background: #f7f8fa;
+                border-radius: 36px;
+                text-align: center; // 水平居中
+                font-size: 26px;
+                color: #333;
+
+                input {
+                    text-align: center !important;
+                }
+            }
+
+            .divider {
+                margin: 0 20px;
+                color: #ccc;
+            }
+        }
+
+        .tags-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+
+            .tag {
+                width: calc((100% - 40px) / 3);
+                height: 72px;
+                background: #f7f8fa;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                color: #333;
+
+                &.active {
+                    background: rgba(0, 102, 246, 0.1);
+                    color: #0066f6;
+                    font-weight: 500;
+                }
+            }
+        }
+    }
+
+    .panel-footer {
+        display: flex;
+        padding: 20px 30px;
+        border-top: 1px solid #f0f0f0;
+
+        .btn {
+            flex: 1;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            border-radius: 40px;
+
+            &.reset {
+                background: #fff;
+                color: #333;
+                border: 1px solid #ddd;
+                margin-right: 20px;
+            }
+
+            &.confirm {
+                background: #0066f6;
+                color: #fff;
+            }
+        }
+    }
+}
+
+.dropdown-mask {
+    position: absolute; // Relative to .filter-container
+    top: 100%; // Start below sort bar
+    left: 0;
+    right: 0;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 300;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+// 更多筛选面板样式
+.more-filter-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    z-index: 302;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    border-top: none;
+    margin-top: -1px;
+    height: 75vh;
+    display: flex;
+    flex-direction: column;
+
+    .filter-content-wrapper {
+        flex: 1;
+        display: flex;
+        overflow: hidden;
+        position: relative;
+
+        .filter-sidebar {
+            width: 180px;
+            background: #f5f7fa;
+            height: 100%; // Important for ScrollView
+
+            .sidebar-item {
+                height: 100px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 28px;
+                color: #666;
+                position: relative;
+
+                &.active {
+                    background: #fff;
+                    color: #0086F6;
+                    font-weight: 600;
+
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        left: 0;
+                        top: 30px;
+                        bottom: 30px;
+                        width: 6px;
+                        background: #0086F6;
+                        border-radius: 0 4px 4px 0;
+                    }
+                }
+            }
+        }
+
+        .filter-main {
+            flex: 1;
+            height: 100%;
+            background: #fff;
+            padding: 30px;
+            box-sizing: border-box;
+
+            .filter-section {
+                margin-bottom: 50px;
+
+                .section-title {
+                    font-size: 28px;
+                    font-weight: bold;
+                    color: #333;
+                    margin-bottom: 24px;
+                    display: block;
+                }
+
+                .tags-grid {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 20px;
+
+                    .filter-tag {
+                        padding: 16px 32px;
+                        background: #f5f7fa;
+                        border-radius: 8px;
+                        font-size: 26px;
+                        color: #333;
+                        border: 1px solid transparent;
+
+                        &.active {
+                            color: #0086F6;
+                            background: rgba(0, 134, 246, 0.08);
+                            border-color: #0086F6;
+                            font-weight: 500;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .panel-footer {
+        height: 120px;
+        padding: 0 30px;
+        border-top: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        background: #fff;
+
+        .btn {
+            flex: 1;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            border-radius: 40px;
+            font-weight: 500;
+
+            &.reset {
+                background: #fff;
+                color: #333;
+                border: 1px solid #ddd;
+                margin-right: 20px;
+            }
+
+            &.confirm {
+                background: #0086F6;
+                color: #fff;
+                border: 1px solid #0086F6;
+            }
+        }
+    }
+}
+
+// 欢迎度排序下拉面板
+.sort-dropdown-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    z-index: 302;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid #f5f5f5;
+
+    .dropdown-item {
+        height: 100px;
+        padding: 0 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 28px;
+        color: #333;
+        transition: background 0.2s;
+
+        &:active {
+            background: #f9f9f9;
+        }
+
+        &.active {
+            color: #0086F6;
+            font-weight: 600;
+        }
+
+        .check-icon {
+            font-size: 32px;
+            color: #0086F6;
+        }
+
+        &+.dropdown-item {
+            border-top: 1px solid #f5f5f5;
+        }
     }
 }
