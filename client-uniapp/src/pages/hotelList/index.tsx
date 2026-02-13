@@ -71,15 +71,26 @@ export default function HotelList() {
     const [loading, setLoading] = useState(true); // 添加加载状态
     const [selectedLocationName, setSelectedLocationName] = useState(''); // 记录选中的位置名称
 
-    const fetchHotels = async () => {
-        setLoading(true);
-        Taro.showLoading({ title: '加载中...' });
+    // 分页相关状态
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+
+    // 获取酒店数据
+    const fetchHotels = async (pageNum = 1, isLoadMore = false) => {
+        if (!isLoadMore) {
+            setLoading(true);
+            Taro.showLoading({ title: '加载中...' });
+            setPage(1); //如果您切换筛选条件，重置页码为1
+        }
+
         try {
             const params: any = {
                 city: currentCity,
                 keyword: currentKeyword,
                 area: selectedLocationName, // 传给后端的区域过滤参数
                 sort: sortMode === 'score' ? selectedSortType : (sortMode === 'price' ? 'price_asc' : ''),
+                page: pageNum,
+                limit: 10
             };
 
             if (priceFilter) {
@@ -100,7 +111,19 @@ export default function HotelList() {
             });
 
             if (res.data && res.data.code === 200) {
-                setDisplayList(res.data.data);
+                const newData = res.data.data;
+                if (isLoadMore) {
+                    setDisplayList(prev => [...prev, ...newData]);
+                } else {
+                    setDisplayList(newData);
+                }
+
+                // 判断是否还有更多数据 (假设每页10条)
+                if (newData.length < 10) {
+                    setHasMore(false);
+                } else {
+                    setHasMore(true);
+                }
             }
         } catch (e) {
             console.error('获取酒店列表失败', e);
@@ -111,8 +134,17 @@ export default function HotelList() {
     };
 
     useEffect(() => {
-        fetchHotels();
+        fetchHotels(1, false);
     }, [priceFilter, activeTags, currentKeyword, sortMode, selectedSortType, selectedLocationName, currentCity]);
+
+    // 触底加载更多
+    const handleScrollToLower = () => {
+        if (!loading && hasMore) {
+            const nextPage = page + 1;
+            setPage(nextPage);
+            fetchHotels(nextPage, true);
+        }
+    };
 
     const formatShortDate = (timestamp: number) => {
         const d = new Date(timestamp);
@@ -334,7 +366,7 @@ export default function HotelList() {
                 </View>
             </ScrollView>
 
-            <ScrollView scrollY className='hotel-list-scroll'>
+            <ScrollView scrollY className='hotel-list-scroll' onScrollToLower={handleScrollToLower} lowerThreshold={50}>
                 {displayList.map((hotel) => (
                     <View key={hotel.id} className='hotel-card'>
                         <View className='card-img-wrap'>
@@ -360,6 +392,10 @@ export default function HotelList() {
                         </View>
                     </View>
                 ))}
+                {/* 底部加载提示 */}
+                <View className='loading-footer' style={{ padding: '15px 0', textAlign: 'center', color: '#999', fontSize: '12px' }}>
+                    {loading ? '加载中...' : (hasMore ? '上滑加载更多' : '没有更多了')}
+                </View>
             </ScrollView>
 
             <CitySelector visible={showCitySelector} onClose={() => setShowCitySelector(false)} onSelect={handleCitySelect} />
