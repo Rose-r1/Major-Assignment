@@ -1,15 +1,18 @@
 const db = require('../config/db');
 
 // 获取酒店列表
+// 获取酒店列表
 exports.getHotelList = async (req, res) => {
     try {
-        const { keyword, star, city, area, minPrice, maxPrice, sort, tags } = req.query;
+        const { keyword, star, city, area, minPrice, maxPrice, sort, tags, page = 1, limit = 10 } = req.query;
+
+        // 分页参数处理
+        const pageNum = parseInt(page) || 1;
+        const limitNum = parseInt(limit) || 10;
+        const offset = (pageNum - 1) * limitNum;
 
         // 基础查询：包含最低价格、评分以及获取一个最优惠的促销标签
-        let sql = `
-            SELECT h.*, 
-                   MIN(r.price) as starting_price,
-                   (SELECT title FROM promotions p WHERE p.hotel_id = h.id LIMIT 1) as promo_title
+        let baseSql = `
             FROM hotels h
             LEFT JOIN room_types r ON h.id = r.hotel_id
             WHERE h.status = 1
@@ -18,59 +21,83 @@ exports.getHotelList = async (req, res) => {
 
         // 1. 城市过滤
         if (city) {
-            sql += ` AND h.address LIKE ?`;
+            baseSql += ` AND h.address LIKE ?`;
             params.push(`%${city}%`);
         }
 
         // 2. 区域/地段过滤
         if (area) {
-            sql += ` AND h.address LIKE ?`;
+            baseSql += ` AND h.address LIKE ?`;
             params.push(`%${area}%`);
         }
 
         // 3. 关键词搜索
         if (keyword) {
-            sql += ` AND (h.name_cn LIKE ? OR h.address LIKE ?)`;
+            baseSql += ` AND (h.name_cn LIKE ? OR h.address LIKE ?)`;
             params.push(`%${keyword}%`, `%${keyword}%`);
         }
 
         // 3. 星级过滤 (支持多选，逗号分隔)
         if (star) {
             const starArray = star.split(',');
-            sql += ` AND h.star_rating IN (${starArray.map(() => '?').join(',')})`;
+            baseSql += ` AND h.star_rating IN (${starArray.map(() => '?').join(',')})`;
             params.push(...starArray);
         }
 
-        sql += ` GROUP BY h.id`;
+        // 构建分组和Having子句 (用于价格过滤)
+        let groupHavingSql = ` GROUP BY h.id`;
 
         // 4. 价格区间过滤 (由于是聚合后的价格，需要使用 HAVING)
         if (minPrice || maxPrice) {
             let havingClauses = [];
             if (minPrice) {
-                havingClauses.push(`starting_price >= ?`);
+                havingClauses.push(`MIN(r.price) >= ?`); // 注意这里直接用聚合函数，避免别名在WHERE中不可用的问题（虽然这是HAVING）
                 params.push(minPrice);
             }
             if (maxPrice) {
-                havingClauses.push(`starting_price <= ?`);
+                havingClauses.push(`MIN(r.price) <= ?`);
                 params.push(maxPrice);
             }
-            sql += ` HAVING ` + havingClauses.join(' AND ');
+            groupHavingSql += ` HAVING ` + havingClauses.join(' AND ');
         }
+
+        // --- 获取总条数 (需要特殊处理，因为有 GROUP BY 和 HAVING) ---
+        // 简单做法：嵌套查询计算总数
+        const countSql = `SELECT COUNT(*) as total FROM (SELECT h.id ${baseSql} ${groupHavingSql}) as temp`;
+        // 注意：countSql 需要使用 params，但 params 在下面构建 dataSql 时还会被用到，所以这里要在 execute 时传入 params 的副本
+        // 但是 db.execute 的 params 是按顺序的。
+        // 为了避免复杂的参数管理，我们先执行 count 查询
+
+        const [countResult] = await db.execute(countSql, params);
+        const total = countResult[0].total;
+
+        // --- 获取分页数据 ---
+        let dataSql = `
+            SELECT h.*, 
+                   MIN(r.price) as starting_price,
+                   (SELECT title FROM promotions p WHERE p.hotel_id = h.id LIMIT 1) as promo_title
+            ${baseSql}
+            ${groupHavingSql}
+        `;
 
         // 5. 排序处理
         if (sort === 'score_desc') {
-            sql += ` ORDER BY h.score DESC`;
+            dataSql += ` ORDER BY h.score DESC`;
         } else if (sort === 'score_asc') {
-            sql += ` ORDER BY h.score ASC`;
+            dataSql += ` ORDER BY h.score ASC`;
         } else if (sort === 'price_asc') {
-            sql += ` ORDER BY starting_price ASC`;
+            dataSql += ` ORDER BY starting_price ASC`;
         } else if (sort === 'price_desc') {
-            sql += ` ORDER BY starting_price DESC`;
+            dataSql += ` ORDER BY starting_price DESC`;
         } else {
-            sql += ` ORDER BY h.id DESC`;
+            dataSql += ` ORDER BY h.id DESC`;
         }
 
-        const [hotels] = await db.execute(sql, params);
+        // 添加分页限制
+        dataSql += ` LIMIT ? OFFSET ?`;
+        const queryParams = [...params, limitNum.toString(), offset.toString()]; // LIMIT 和 OFFSET通常需要字符串或数字，mysql2处理参数时比较灵活
+
+        const [hotels] = await db.execute(dataSql, queryParams);
 
         // 数据后处理：映射字段名以适配前端
         const formattedHotels = hotels.map(h => {
@@ -106,8 +133,18 @@ exports.getHotelList = async (req, res) => {
             };
         });
 
-        res.json({ code: 200, data: formattedHotels });
+        res.json({
+            code: 200,
+            data: formattedHotels,
+            pagination: {
+                total,
+                page: pageNum,
+                limit: limitNum,
+                totalPages: Math.ceil(total / limitNum)
+            }
+        });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: '查询酒店失败', error: error.message });
     }
 };
