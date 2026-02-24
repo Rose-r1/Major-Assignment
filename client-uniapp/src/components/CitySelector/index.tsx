@@ -52,37 +52,35 @@ export default function CitySelector({ visible, onClose, onSelect }: CitySelecto
             success: (res) => {
                 // 调用后端接口
                 Taro.request({
-                    url: 'http://192.168.1.76:5000/api/location/reverse-geocode',
+                    url: '/api/location/reverse-geocode',
                     method: 'GET',
                     data: {
                         lat: res.latitude,
                         lng: res.longitude
-                    },
-                    success: (apiRes) => {
-                        if (apiRes.statusCode === 200 && apiRes.data.code === 200) {
-                            const addressComponent = apiRes.data.data.addressComponent;
-                            let newCity = addressComponent.city;
-                            const province = addressComponent.province;
+                    }
+                }).then((apiRes) => {
+                    if (apiRes.data.code === 200) {
+                        const addressComponent = apiRes.data.data.addressComponent;
+                        let newCity = addressComponent.city;
+                        const province = addressComponent.province;
 
-                            if (Array.isArray(newCity) || !newCity) {
-                                newCity = (typeof province === 'string' && province.length > 0) ? province : '';
-                            }
+                        if (Array.isArray(newCity) || !newCity) {
+                            newCity = (typeof province === 'string' && province.length > 0) ? province : '';
+                        }
 
-                            if (typeof newCity === 'string' && newCity) {
-                                if (newCity.endsWith('市')) {
-                                    newCity = newCity.slice(0, -1);
-                                }
-                                setLocationCity(newCity);
-                            } else {
-                                setLocationCity('定位失败');
+                        if (typeof newCity === 'string' && newCity) {
+                            if (newCity.endsWith('市')) {
+                                newCity = newCity.slice(0, -1);
                             }
+                            setLocationCity(newCity);
                         } else {
                             setLocationCity('定位失败');
                         }
-                    },
-                    fail: () => {
+                    } else {
                         setLocationCity('定位失败');
                     }
+                }).catch(() => {
+                    setLocationCity('定位失败');
                 });
             },
             fail: () => {

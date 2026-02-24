@@ -1,9 +1,10 @@
 import { View, Text, Image, Input, Button, Swiper, SwiperItem } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { useState, useMemo } from 'react'
-import CitySelector from '../../components/CitySelector' // 引入组件
-import PriceStarFilter from '../../components/PriceStarFilter' // 引入价格星级组件
-import RangeCalendar from '../../components/RangeCalendar' // 引入日历组件
+import CitySelector from '../../components/CitySelector'
+import PriceStarFilter from '../../components/PriceStarFilter'
+import RangeCalendar from '../../components/RangeCalendar'
+import { API_BASE_URL } from '../../config'
 import './index.scss'
 
 export default function Index() {
@@ -54,11 +55,6 @@ export default function Index() {
     setCheckOutDate(end);
   };
 
-  useDidShow(() => {
-    console.log('Page shown.')
-    checkLoginStatus();
-  })
-
   const [banners, setBanners] = useState<any[]>([]);
 
   useDidShow(() => {
@@ -79,16 +75,14 @@ export default function Index() {
 
   const fetchBanners = () => {
     Taro.request({
-      url: 'http://192.168.1.76:5000/api/banners',
-      method: 'GET',
-      success: (res) => {
-        if (res.statusCode === 200 && res.data.code === 200) {
-          setBanners(res.data.data);
-        }
-      },
-      fail: (err) => {
-        console.error('Fetch Banners Error:', err);
+      url: '/api/banners',
+      method: 'GET'
+    }).then((res) => {
+      if (res.statusCode === 200 && res.data.code === 200) {
+        setBanners(res.data.data);
       }
+    }).catch((err) => {
+      console.error('Fetch Banners Error:', err);
     });
   };
 
@@ -232,7 +226,7 @@ export default function Index() {
               <SwiperItem key={item.id} onClick={() => handleBannerClick(item)}>
                 <Image
                   className="banner-image"
-                  src={item.image_url.startsWith('http') ? item.image_url : `http://192.168.1.76:5000${item.image_url}`}
+                  src={item.image_url.startsWith('http') ? item.image_url : `${API_BASE_URL}${item.image_url}`}
                   mode="aspectFill"
                   style={{ width: '100%', height: '100%' }}
                 />

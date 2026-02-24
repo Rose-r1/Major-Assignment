@@ -16,39 +16,37 @@ export default function Login() {
         Taro.showLoading({ title: '登录中...' });
 
         Taro.request({
-            url: 'http://192.168.1.76:5000/api/auth/login', // 请确保地址正确，手机预览可能需要用本机IP
+            url: '/api/auth/login',
             method: 'POST',
             data: {
                 username: username,
                 password: password
-            },
-            success: (res) => {
-                Taro.hideLoading();
-                if (res.statusCode === 200 && res.data.token) {
-                    // 登录成功
-                    Taro.setStorageSync('token', res.data.token);
-                    Taro.setStorageSync('userInfo', res.data.user);
-
-                    Taro.showToast({ title: '登录成功', icon: 'success' });
-
-                    // 延迟返回，让用户看到成功提示
-                    setTimeout(() => {
-                        // 登录成功后，跳转到首页
-                        Taro.reLaunch({ url: '/pages/index/index' });
-                    }, 1500);
-                } else {
-                    // 登录失败
-                    Taro.showToast({
-                        title: res.data.message || '登录失败',
-                        icon: 'none'
-                    });
-                }
-            },
-            fail: (err) => {
-                Taro.hideLoading();
-                console.error('Login Request Error:', err);
-                Taro.showToast({ title: '网络请求失败', icon: 'none' });
             }
+        }).then((res) => {
+            Taro.hideLoading();
+            if (res.statusCode === 200 && res.data.token) {
+                // 登录成功
+                Taro.setStorageSync('token', res.data.token);
+                Taro.setStorageSync('userInfo', res.data.user);
+
+                Taro.showToast({ title: '登录成功', icon: 'success' });
+
+                // 延迟返回，让用户看到成功提示
+                setTimeout(() => {
+                    // 登录成功后，跳转到首页
+                    Taro.reLaunch({ url: '/pages/index/index' });
+                }, 1500);
+            } else {
+                // 登录失败
+                Taro.showToast({
+                    title: res.data.message || '登录失败',
+                    icon: 'none'
+                });
+            }
+        }).catch((err) => {
+            Taro.hideLoading();
+            console.error('Login Request Error:', err);
+            Taro.showToast({ title: '网络请求失败', icon: 'none' });
         });
     }
 
@@ -76,7 +74,7 @@ export default function Login() {
                     <Text className='label'>密码</Text>
                     <Input
                         className='input'
-                        type='password'
+                        password
                         placeholder='请输入密码'
                         placeholderClass='placeholder'
                         value={password}

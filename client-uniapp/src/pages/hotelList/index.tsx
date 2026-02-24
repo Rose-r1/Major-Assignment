@@ -101,13 +101,9 @@ export default function HotelList() {
 
             if (activeTags.length > 0) params.tags = activeTags.join(',');
 
-            const token = Taro.getStorageSync('token');
             const res = await Taro.request({
-                url: 'http://192.168.1.76:5000/api/hotels',
-                data: params,
-                header: {
-                    'Authorization': token ? `Bearer ${token}` : ''
-                }
+                url: '/api/hotels',
+                data: params
             });
 
             if (res.data && res.data.code === 200) {
@@ -162,19 +158,18 @@ export default function HotelList() {
         setLocationTab(tabIndex);
         const cityKey = currentCity.replace('市', '');
         let url = '';
-        if (tabIndex === 0) url = `http://192.168.1.76:5000/api/location/districts?keywords=${encodeURIComponent(cityKey)}`;
-        else if (tabIndex === 1) url = `http://192.168.1.76:5000/api/location/pois?city=${encodeURIComponent(cityKey)}&keywords=${encodeURIComponent('购物中心')}`;
-        else if (tabIndex === 2) url = `http://192.168.1.76:5000/api/location/pois?city=${encodeURIComponent(cityKey)}&keywords=${encodeURIComponent('机场|火车站')}&types=150100|150200`;
-        else url = `http://192.168.1.76:5000/api/location/pois?city=${encodeURIComponent(cityKey)}&types=110000`;
+        if (tabIndex === 0) url = `/api/location/districts?keywords=${encodeURIComponent(cityKey)}`;
+        else if (tabIndex === 1) url = `/api/location/pois?city=${encodeURIComponent(cityKey)}&keywords=${encodeURIComponent('购物中心')}`;
+        else if (tabIndex === 2) url = `/api/location/pois?city=${encodeURIComponent(cityKey)}&keywords=${encodeURIComponent('机场|火车站')}&types=150100|150200`;
+        else url = `/api/location/pois?city=${encodeURIComponent(cityKey)}&types=110000`;
 
         Taro.request({
-            url,
-            success: (res) => {
-                if (res.data.code === 200) {
-                    const data = res.data.data;
-                    const list = tabIndex === 0 ? data.map((d: any) => ({ name: d.name, id: d.adcode })) : data.map((d: any) => ({ name: d.name, id: d.id }));
-                    setLocationList(list);
-                }
+            url
+        }).then((res) => {
+            if (res.data.code === 200) {
+                const data = res.data.data;
+                const list = tabIndex === 0 ? data.map((d: any) => ({ name: d.name, id: d.adcode })) : data.map((d: any) => ({ name: d.name, id: d.id }));
+                setLocationList(list);
             }
         });
     };

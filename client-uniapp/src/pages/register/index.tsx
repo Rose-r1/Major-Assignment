@@ -23,34 +23,32 @@ export default function Register() {
         Taro.showLoading({ title: '注册中...' });
 
         Taro.request({
-            url: 'http://192.168.1.76:5000/api/auth/register',
+            url: '/api/auth/register',
             method: 'POST',
             data: {
                 username,
                 password,
                 nickname: nickname || `用户${username.slice(-4)}` // 默认昵称
-            },
-            success: (res) => {
-                Taro.hideLoading();
-                if (res.statusCode === 201 || res.statusCode === 200) {
-                    Taro.showToast({ title: '注册成功', icon: 'success' });
-
-                    // 延迟返回登录页
-                    setTimeout(() => {
-                        Taro.navigateBack();
-                    }, 1500);
-                } else {
-                    Taro.showToast({
-                        title: res.data.message || '注册失败',
-                        icon: 'none'
-                    });
-                }
-            },
-            fail: (err) => {
-                Taro.hideLoading();
-                console.error('Register Request Error:', err);
-                Taro.showToast({ title: '网络请求失败', icon: 'none' });
             }
+        }).then((res) => {
+            Taro.hideLoading();
+            if (res.statusCode === 201 || res.statusCode === 200) {
+                Taro.showToast({ title: '注册成功', icon: 'success' });
+
+                // 延迟返回登录页
+                setTimeout(() => {
+                    Taro.navigateBack();
+                }, 1500);
+            } else {
+                Taro.showToast({
+                    title: res.data.message || '注册失败',
+                    icon: 'none'
+                });
+            }
+        }).catch((err) => {
+            Taro.hideLoading();
+            console.error('Register Request Error:', err);
+            Taro.showToast({ title: '网络请求失败', icon: 'none' });
         });
     }
 
@@ -90,7 +88,7 @@ export default function Register() {
                     <Text className='label'>密码</Text>
                     <Input
                         className='input'
-                        type='password'
+                        password
                         placeholder='设置登录密码'
                         placeholderClass='placeholder'
                         value={password}
@@ -103,7 +101,7 @@ export default function Register() {
                     <Text className='label'>确认密码</Text>
                     <Input
                         className='input'
-                        type='password'
+                        password
                         placeholder='再次输入密码'
                         placeholderClass='placeholder'
                         value={confirmPassword}

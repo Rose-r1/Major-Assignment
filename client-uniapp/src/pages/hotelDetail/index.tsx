@@ -2,6 +2,7 @@ import { View, Text, Image, ScrollView, Swiper, SwiperItem } from '@tarojs/compo
 import Taro, { useRouter } from '@tarojs/taro'
 import { useState, useEffect } from 'react'
 import RangeCalendar from '../../components/RangeCalendar'
+import { API_BASE_URL } from '../../config'
 import './index.scss'
 
 export default function HotelDetail() {
@@ -27,10 +28,7 @@ export default function HotelDetail() {
             }
             try {
                 const res = await Taro.request({
-                    url: `http://192.168.1.76:5000/api/hotels/${id}`,
-                    header: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    url: `/api/hotels/${id}`
                 });
                 if (res.data && res.data.code === 200) {
                     const data = res.data.data;
@@ -44,7 +42,7 @@ export default function HotelDetail() {
                         reviews: data.reviews_count || 4695,
                         tags: data.tags ? (typeof data.tags === 'string' ? JSON.parse(data.tags) : data.tags) : ['中式风格', '舒适安逸'],
                         images: [
-                            data.main_image ? (data.main_image.startsWith('/uploads') ? `http://192.168.1.76:5000${data.main_image}` : data.main_image) : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
+                            data.main_image ? (data.main_image.startsWith('/uploads') ? `${API_BASE_URL}${data.main_image}` : data.main_image) : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
                             'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800',
                             'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800'
                         ],
@@ -61,7 +59,7 @@ export default function HotelDetail() {
                                 }
                             }
                             // 处理相对路径
-                            const finalImage = img ? (img.startsWith('/uploads') ? `http://192.168.1.76:5000${img}` : img) : null;
+                            const finalImage = img ? (img.startsWith('/uploads') ? `${API_BASE_URL}${img}` : img) : null;
                             return { ...room, image: finalImage };
                         }).sort((a, b) => a.price - b.price)
                     });
