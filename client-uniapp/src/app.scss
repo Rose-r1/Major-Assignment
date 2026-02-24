@@ -1,4 +1,16 @@
-// Hide scrollbars globally for all scrollable elements in the app
+// Note: Do NOT use ::-webkit-scrollbar here!
+// WeChat Mini Program's WXSS engine does not support webkit pseudo-elements,
+// and it will break native components like <input>.
+// To hide scrollbars in Mini Program, use show-scrollbar={false} on <ScrollView> instead.
+
+page {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+    background-color: #f5f7fa;
+    -webkit-tap-highlight-color: transparent;
+    /* 消除点击高亮 */
+}
+
+/* 隐藏所有可滚动元素的滚动条 */
 ::-webkit-scrollbar {
     display: none;
     width: 0;
