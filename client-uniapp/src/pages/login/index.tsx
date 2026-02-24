@@ -68,6 +68,7 @@ export default function Login() {
                         placeholderClass='placeholder'
                         value={username}
                         onInput={(e) => setUsername(e.detail.value)}
+                        alwaysEmbed
                     />
                 </View>
 
@@ -80,6 +81,7 @@ export default function Login() {
                         placeholderClass='placeholder'
                         value={password}
                         onInput={(e) => setPassword(e.detail.value)}
+                        alwaysEmbed
                     />
                 </View>
 

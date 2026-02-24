@@ -218,7 +218,15 @@ export default function HotelList() {
                     </View>
                     <Text className='cap-blue' style={{ margin: '0 8px' }}>{getNights()}晚</Text>
                     <Text className='cap-sep'>|</Text>
-                    <Input className='cap-keyword-input' placeholder='位置/品牌/酒店' value={currentKeyword} onInput={(e) => setCurrentKeyword(e.detail.value)} />
+                    <Input
+                        className='cap-keyword-input'
+                        placeholder='位置/品牌/酒店'
+                        value={currentKeyword}
+                        onInput={(e) => setCurrentKeyword(e.detail.value)}
+                        onConfirm={(e) => setCurrentKeyword(e.detail.value)}
+                        confirmType='search'
+                        alwaysEmbed
+                    />
                 </View>
             </View>
 

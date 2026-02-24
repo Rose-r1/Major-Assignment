@@ -70,6 +70,7 @@ export default function Register() {
                         placeholderClass='placeholder'
                         value={username}
                         onInput={(e) => setUsername(e.detail.value)}
+                        alwaysEmbed
                     />
                 </View>
 
@@ -81,6 +82,7 @@ export default function Register() {
                         placeholderClass='placeholder'
                         value={nickname}
                         onInput={(e) => setNickname(e.detail.value)}
+                        alwaysEmbed
                     />
                 </View>
 
@@ -93,6 +95,7 @@ export default function Register() {
                         placeholderClass='placeholder'
                         value={password}
                         onInput={(e) => setPassword(e.detail.value)}
+                        alwaysEmbed
                     />
                 </View>
 
@@ -105,6 +108,7 @@ export default function Register() {
                         placeholderClass='placeholder'
                         value={confirmPassword}
                         onInput={(e) => setConfirmPassword(e.detail.value)}
+                        alwaysEmbed
                     />
                 </View>
 
