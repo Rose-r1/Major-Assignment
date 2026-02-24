@@ -23,7 +23,7 @@ export default function Register() {
         Taro.showLoading({ title: '注册中...' });
 
         Taro.request({
-            url: 'http://localhost:5000/api/auth/register',
+            url: 'http://192.168.1.76:5000/api/auth/register',
             method: 'POST',
             data: {
                 username,

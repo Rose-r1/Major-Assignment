@@ -16,7 +16,7 @@ export default function Login() {
         Taro.showLoading({ title: '登录中...' });
 
         Taro.request({
-            url: 'http://localhost:5000/api/auth/login', // 请确保地址正确，手机预览可能需要用本机IP
+            url: 'http://192.168.1.76:5000/api/auth/login', // 请确保地址正确，手机预览可能需要用本机IP
             method: 'POST',
             data: {
                 username: username,

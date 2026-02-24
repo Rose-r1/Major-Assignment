@@ -103,7 +103,7 @@ export default function HotelList() {
 
             const token = Taro.getStorageSync('token');
             const res = await Taro.request({
-                url: 'http://localhost:5000/api/hotels',
+                url: 'http://192.168.1.76:5000/api/hotels',
                 data: params,
                 header: {
                     'Authorization': token ? `Bearer ${token}` : ''
@@ -162,10 +162,10 @@ export default function HotelList() {
         setLocationTab(tabIndex);
         const cityKey = currentCity.replace('市', '');
         let url = '';
-        if (tabIndex === 0) url = `http://localhost:5000/api/location/districts?keywords=${encodeURIComponent(cityKey)}`;
-        else if (tabIndex === 1) url = `http://localhost:5000/api/location/pois?city=${encodeURIComponent(cityKey)}&keywords=${encodeURIComponent('购物中心')}`;
-        else if (tabIndex === 2) url = `http://localhost:5000/api/location/pois?city=${encodeURIComponent(cityKey)}&keywords=${encodeURIComponent('机场|火车站')}&types=150100|150200`;
-        else url = `http://localhost:5000/api/location/pois?city=${encodeURIComponent(cityKey)}&types=110000`;
+        if (tabIndex === 0) url = `http://192.168.1.76:5000/api/location/districts?keywords=${encodeURIComponent(cityKey)}`;
+        else if (tabIndex === 1) url = `http://192.168.1.76:5000/api/location/pois?city=${encodeURIComponent(cityKey)}&keywords=${encodeURIComponent('购物中心')}`;
+        else if (tabIndex === 2) url = `http://192.168.1.76:5000/api/location/pois?city=${encodeURIComponent(cityKey)}&keywords=${encodeURIComponent('机场|火车站')}&types=150100|150200`;
+        else url = `http://192.168.1.76:5000/api/location/pois?city=${encodeURIComponent(cityKey)}&types=110000`;
 
         Taro.request({
             url,
@@ -180,7 +180,6 @@ export default function HotelList() {
     };
 
     const handleTagToggle = (tag: string) => setActiveTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
-    const handleBack = () => Taro.navigateBack();
     const renderStars = (count: number) => Array.from({ length: count }, (_, i) => <Text key={i} className='diamond'>💎</Text>);
     const formatFav = (n: number) => n >= 10000 ? `${(n / 10000).toFixed(1)}万` : String(n);
 
@@ -210,7 +209,6 @@ export default function HotelList() {
     return (
         <View className='hotel-list-page'>
             <View className='top-bar'>
-                <Text className='back-arrow' onClick={handleBack}>‹</Text>
                 <View className='info-capsule'>
                     <Text className='cap-blue' onClick={() => setShowCitySelector(true)}>{currentCity}</Text>
                     <Text className='cap-sep'>|</Text>
@@ -368,7 +366,11 @@ export default function HotelList() {
 
             <ScrollView scrollY className='hotel-list-scroll' onScrollToLower={handleScrollToLower} lowerThreshold={50}>
                 {displayList.map((hotel) => (
-                    <View key={hotel.id} className='hotel-card'>
+                    <View
+                        key={hotel.id}
+                        className='hotel-card'
+                        onClick={() => Taro.navigateTo({ url: `/pages/hotelDetail/index?id=${hotel.id}&city=${encodeURIComponent(currentCity)}&checkIn=${currentCheckIn}&checkOut=${currentCheckOut}` })}
+                    >
                         <View className='card-img-wrap'>
                             <Image className='card-img' src={hotel.image} mode='aspectFill' />
                         </View>

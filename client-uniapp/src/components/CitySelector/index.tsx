@@ -52,7 +52,7 @@ export default function CitySelector({ visible, onClose, onSelect }: CitySelecto
             success: (res) => {
                 // 调用后端接口
                 Taro.request({
-                    url: 'http://localhost:5000/api/location/reverse-geocode',
+                    url: 'http://192.168.1.76:5000/api/location/reverse-geocode',
                     method: 'GET',
                     data: {
                         lat: res.latitude,

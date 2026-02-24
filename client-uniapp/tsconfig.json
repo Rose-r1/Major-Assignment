@@ -15,6 +15,7 @@
     "sourceMap": true,
     "rootDir": ".",
     "jsx": "react-jsx",
+    "jsxImportSource": "react",
     "allowJs": true,
     "resolveJsonModule": true,
     "typeRoots": [
@@ -22,9 +23,15 @@
     ],
     "paths": {
       // TS5090 leading './'
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["./src", "./types", "./config"],
+  "include": [
+    "./src",
+    "./types",
+    "./config"
+  ],
   "compileOnSave": false
 }
