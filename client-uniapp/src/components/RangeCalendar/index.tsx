@@ -134,8 +134,10 @@ export default function RangeCalendar({ visible, onClose, onConfirm, initialStar
         }
     }
 
+    if (!visible) return null;
+
     return (
-        <View className={`calendar-overlay ${visible ? 'visible' : ''}`}>
+        <View className='calendar-overlay visible'>
             <View className='calendar-container'>
                 <View className='header'>
                     <Text className='title'>选择日期</Text>
