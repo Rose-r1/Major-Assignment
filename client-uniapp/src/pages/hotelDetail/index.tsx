@@ -48,8 +48,22 @@ export default function HotelDetail() {
                             'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800',
                             'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800'
                         ],
-                        // Ensure room types are sorted by price as requested
-                        room_types: (data.room_types || []).sort((a, b) => a.price - b.price)
+                        // Ensure room types are sorted by price and images have full URLs
+                        room_types: (data.room_types || []).map(room => {
+                            let img = room.image;
+                            // 如果 image 字段被存为了 JSON 字符串（比如 '["url"]'），需要解析它
+                            if (img && typeof img === 'string' && img.startsWith('[')) {
+                                try {
+                                    const parsed = JSON.parse(img);
+                                    img = Array.isArray(parsed) ? parsed[0] : parsed;
+                                } catch (e) {
+                                    console.error('解析房间图片失败', e);
+                                }
+                            }
+                            // 处理相对路径
+                            const finalImage = img ? (img.startsWith('/uploads') ? `http://192.168.1.76:5000${img}` : img) : null;
+                            return { ...room, image: finalImage };
+                        }).sort((a, b) => a.price - b.price)
                     });
                 }
             } catch (e) {
