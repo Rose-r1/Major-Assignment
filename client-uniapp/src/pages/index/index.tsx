@@ -1,6 +1,6 @@
-import { View, Text, Image, Input, Button } from '@tarojs/components'
+import { View, Text, Image, Input, Button, Swiper, SwiperItem } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import CitySelector from '../../components/CitySelector' // 引入组件
 import PriceStarFilter from '../../components/PriceStarFilter' // 引入价格星级组件
 import RangeCalendar from '../../components/RangeCalendar' // 引入日历组件
@@ -20,6 +20,15 @@ export default function Index() {
   }); // 离店日期
   const [keyword, setKeyword] = useState(''); // 搜索关键字
   const [selectedTags, setSelectedTags] = useState<string[]>([]); // 已选快捷标签
+
+  // 计算自定义导航栏高度
+  const { navBarHeight, statusBarHeight, menuButtonRect } = useMemo(() => {
+    const sysInfo = Taro.getSystemInfoSync();
+    const statusBarHeight = sysInfo.statusBarHeight || 20;
+    const menuButtonRect = Taro.getMenuButtonBoundingClientRect();
+    const navBarHeight = (menuButtonRect.top - statusBarHeight) * 2 + menuButtonRect.height + statusBarHeight;
+    return { navBarHeight, statusBarHeight, menuButtonRect };
+  }, []);
 
   const formatDate = (date: Date) => {
     return `${date.getMonth() + 1}月${date.getDate()}日`
@@ -50,6 +59,14 @@ export default function Index() {
     checkLoginStatus();
   })
 
+  const [banners, setBanners] = useState<any[]>([]);
+
+  useDidShow(() => {
+    console.log('Page shown.')
+    checkLoginStatus();
+    fetchBanners();
+  })
+
   // 检查登录状态
   const checkLoginStatus = () => {
     const token = Taro.getStorageSync('token');
@@ -57,6 +74,28 @@ export default function Index() {
       setShowLoginModal(true);
     } else {
       setShowLoginModal(false);
+    }
+  };
+
+  const fetchBanners = () => {
+    Taro.request({
+      url: 'http://192.168.1.76:5000/api/banners',
+      method: 'GET',
+      success: (res) => {
+        if (res.statusCode === 200 && res.data.code === 200) {
+          setBanners(res.data.data);
+        }
+      },
+      fail: (err) => {
+        console.error('Fetch Banners Error:', err);
+      }
+    });
+  };
+
+  const handleBannerClick = (banner: any) => {
+    if (banner.target_url) {
+      // Check if target url contains hotel detail route rules, e.g /pages/hotelDetail/index?id=X
+      Taro.navigateTo({ url: banner.target_url });
     }
   };
 
@@ -138,13 +177,82 @@ export default function Index() {
 
   return (
     <View className='index-page'>
-      {/* 1. Banner Section */}
-      <View className='banner-section'>
-        {/* 这里可以使用实际的图片链接，暂时用纯色渐变代替 */}
-        {/* <Image className='banner-image' src='...' mode='aspectFill' /> */}
-        <View style={{ padding: '40px 24px', color: 'white' }}>
-          <Text style={{ fontSize: '48px', fontWeight: 'bold' }}>开启您的<br />美好旅程</Text>
+      {/* 自定义导航栏 - 透明 */}
+      <View
+        className='custom-nav-bar'
+        style={{
+          height: `${navBarHeight}px`,
+          paddingTop: `${statusBarHeight}px`,
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          display: 'flex',
+          pointerEvents: 'none'
+        }}
+      >
+        <View
+          style={{
+            width: '100%',
+            textAlign: 'center',
+            fontSize: '34rpx',
+            fontWeight: 'bold',
+            color: '#ffffff',
+            height: `${menuButtonRect.height}px`,
+            lineHeight: `${menuButtonRect.height}px`,
+            marginTop: `${menuButtonRect.top - statusBarHeight}px`,
+            textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+          }}
+        >
+          酒店预订
         </View>
+      </View>
+
+      {/* 1. Banner Section - 沉浸式图片 */}
+      <View
+        className='banner-section'
+        style={{
+          height: `calc(460rpx + ${navBarHeight}px)`,
+          position: 'relative'
+        }}
+      >
+        {banners.length > 0 ? (
+          <Swiper
+            className="banner-swiper"
+            circular
+            indicatorDots
+            autoplay
+            interval={4000}
+            indicatorColor="rgba(255, 255, 255, 0.5)"
+            indicatorActiveColor="#ffffff"
+            style={{ height: '100%', width: '100%' }}
+          >
+            {banners.map((item) => (
+              <SwiperItem key={item.id} onClick={() => handleBannerClick(item)}>
+                <Image
+                  className="banner-image"
+                  src={item.image_url.startsWith('http') ? item.image_url : `http://192.168.1.76:5000${item.image_url}`}
+                  mode="aspectFill"
+                  style={{ width: '100%', height: '100%' }}
+                />
+              </SwiperItem>
+            ))}
+          </Swiper>
+        ) : (
+          <View
+            style={{
+              paddingTop: `${navBarHeight + 40}px`,
+              paddingLeft: '32rpx',
+              color: 'white',
+              background: 'linear-gradient(180deg, #0066f6 0%, #2b85fc 100%)',
+              height: '100%',
+              boxSizing: 'border-box'
+            }}
+          >
+            <Text style={{ fontSize: '48rpx', fontWeight: 'bold' }}>开启您的美好旅程</Text>
+          </View>
+        )}
       </View>
 
       {/* 2. Core Search Area */}
@@ -179,6 +287,7 @@ export default function Index() {
                     placeholderClass='placeholder'
                     value={keyword}
                     onInput={e => setKeyword(e.detail.value)}
+                    alwaysEmbed
                   />
                 </View>
               </View>
@@ -238,32 +347,6 @@ export default function Index() {
             </View>
           )}
 
-        </View>
-      </View>
-
-      {/* 3. Recommended Hotels Section (填充底部空白) */}
-      <View className='recommend-section'>
-        <Text className='section-title'>热门推荐</Text>
-        <View className='hotel-list'>
-          {/* Mock Promos / Recommendations */}
-          {[1, 2, 3].map(i => (
-            <View key={i} className='hotel-card'>
-              {/* 这里的 Mock 图片地址暂时留空或使用纯色块 */}
-              <Image className='hotel-thumb' src='' mode='aspectFill' style={{ backgroundColor: '#e0e0e0' }} />
-              <View className='hotel-info'>
-                <Text className='name'>上海宝格丽酒店 {i}号店</Text>
-                <View className='score-row'>
-                  <Text className='score'>4.{8 + i}分</Text>
-                  <Text className='comment'>“服务超棒，夜景无敌”</Text>
-                </View>
-                <View className='price-row'>
-                  <Text className='currency'>¥</Text>
-                  <Text className='price'>{4000 + i * 200}</Text>
-                  <Text className='unit'>起</Text>
-                </View>
-              </View>
-            </View>
-          ))}
         </View>
       </View>
 
