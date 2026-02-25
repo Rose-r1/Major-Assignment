@@ -1,16 +1,25 @@
 const db = require('../config/db');
 
-// 待审核列表
+// 待审核列表，支持关键字搜索
 exports.getAuditList = async(req, res) => {
     try {
-        const sql = `
+        const { keyword } = req.query;  // 获取前端传来的关键字
+
+        let sql = `
             SELECT *
             FROM hotels
             WHERE status = 0
-            ORDER BY id ASC
         `;
+        let params = [];
 
-        const [rows] = await db.execute(sql);
+        if (keyword) {
+            sql += ` AND (name_cn LIKE ? OR address LIKE ?)`;
+            params.push(`%${keyword}%`, `%${keyword}%`);
+        }
+
+        sql += ` ORDER BY id ASC`;
+
+        const [rows] = await db.execute(sql, params);
 
         res.json({
             code: 200,
