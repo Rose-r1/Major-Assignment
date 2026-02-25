@@ -149,7 +149,18 @@ export default function HotelList() {
 
     const getNights = () => Math.max(1, Math.round((currentCheckOut - currentCheckIn) / 86400000));
 
-    const handleCitySelect = (selectedCity: string) => { setCurrentCity(selectedCity); setShowCitySelector(false); };
+    const handleCitySelect = (selectedCity: string) => {
+        setCurrentCity(selectedCity);
+        setShowCitySelector(false);
+        // 重置所有筛选条件
+        setSelectedSortType('score_desc');
+        setSortMode('score');
+        setSelectedLocationName('');
+        setPriceFilter({ minPrice: '', maxPrice: '', starRatings: [] });
+        setActiveTags([]);
+        setTempPriceFilter({ minPrice: '', maxPrice: '', starRatings: [] });
+        setTempTags([]);
+    };
     const handleDateConfirm = (start: Date, end: Date) => { setCurrentCheckIn(start.getTime()); setCurrentCheckOut(end.getTime()); setShowCalendar(false); };
     const handlePriceConfirm = () => { setPriceFilter(tempPriceFilter); setActiveDropdown(null); };
     const handlePriceReset = () => setTempPriceFilter({ minPrice: '', maxPrice: '', starRatings: [] });
@@ -219,6 +230,7 @@ export default function HotelList() {
                         value={currentKeyword}
                         onInput={(e) => setCurrentKeyword(e.detail.value)}
                         onConfirm={(e) => setCurrentKeyword(e.detail.value)}
+                        onFocus={() => setActiveDropdown(null)}
                         confirmType='search'
                         alwaysEmbed
                     />
@@ -282,21 +294,27 @@ export default function HotelList() {
                 {/* 位置下拉 */}
                 {activeDropdown === 1 && (
                     <View className='location-filter-panel'>
-                        <ScrollView scrollY className='left-tabs'>
-                            {['行政区', '商圈', '机场车站', '景点'].map((tab, i) => (
-                                <View key={i} className={`left-tab ${locationTab === i ? 'active' : ''}`} onClick={() => fetchLocationData(i)}>{tab}</View>
-                            ))}
-                        </ScrollView>
-                        <ScrollView scrollY className='right-list'>
-                            {locationList.length > 0 ? locationList.map((item, i) => (
-                                <View key={i} className='list-item' onClick={() => {
-                                    setSelectedLocationName(item.name);
-                                    setActiveDropdown(null);
-                                }}>
-                                    <Text className='item-name'>{item.name}</Text>
-                                </View>
-                            )) : <View className='empty-tip'>无数据</View>}
-                        </ScrollView>
+                        <View className='panel-body'>
+                            <ScrollView scrollY className='left-tabs'>
+                                {['行政区', '商圈', '机场车站', '景点'].map((tab, i) => (
+                                    <View key={i} className={`left-tab ${locationTab === i ? 'active' : ''}`} onClick={() => fetchLocationData(i)}>{tab}</View>
+                                ))}
+                            </ScrollView>
+                            <ScrollView scrollY className='right-list'>
+                                {locationList.length > 0 ? locationList.map((item, i) => (
+                                    <View key={i} className={`list-item ${selectedLocationName === item.name ? 'active' : ''}`} onClick={() => {
+                                        setSelectedLocationName(item.name);
+                                    }}>
+                                        <Text className='item-name'>{item.name}</Text>
+                                        {selectedLocationName === item.name && <Text className='check-icon'>✓</Text>}
+                                    </View>
+                                )) : <View className='empty-tip'>无数据</View>}
+                            </ScrollView>
+                        </View>
+                        <View className='panel-footer'>
+                            <View className='btn reset' onClick={() => { setSelectedLocationName(''); setActiveDropdown(null); }}>清空</View>
+                            <View className='btn confirm' onClick={() => setActiveDropdown(null)}>确定</View>
+                        </View>
                     </View>
                 )}
 
