@@ -1,0 +1,119 @@
+.login-root {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('../assets/Login-background.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.7;
+  z-index: 0;
+}
+
+.login-card {
+  position: relative;
+  width: 800px;
+  height: 480px;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  z-index: 1;
+}
+
+/* ===== 表单区域 ===== */
+.form {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  transition: opacity 0.4s ease;
+}
+
+/* 默认：显示登录 */
+.register {
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.login {
+  left: 50%;
+  opacity: 1;
+}
+
+/* active（切到注册） */
+.login-card.active .register {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.login-card.active .login {
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+/* ===== 蓝色滑动遮罩 ===== */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  background: #0077B6;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.6s ease;
+  z-index: 10;
+
+  transform: translateX(-100%);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 30%;
+  border-bottom-right-radius: 30%;
+}
+
+.login-card.active .overlay {
+  transform: translateX(0);
+
+  border-top-left-radius: 30%;
+  border-bottom-left-radius: 30%;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.overlay-panel {
+  text-align: center;
+  padding: 40px;
+}
+
+.input {
+  width: 80%;
+}
+
+.login-btn {
+  background-color: #0077B6;
+  border-color: #0077B6;
+}
+
+.login-btn:hover,
+.login-btn:focus {
+  background-color: #0096C7 !important;
+  border-color: #0096C7 !important;
+}
