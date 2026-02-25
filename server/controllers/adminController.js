@@ -155,3 +155,40 @@ exports.forceOfflineHotel = async(req, res) => {
         });
     }
 };
+
+// 恢复酒店为待审核
+exports.restoreHotelToPending = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        message: '缺少参数',
+      });
+    }
+
+    const sql = `
+      UPDATE hotels
+      SET status = 0
+      WHERE id = ?
+    `;
+
+    const [result] = await db.execute(sql, [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        message: '酒店不存在',
+      });
+    }
+
+    res.json({
+      code: 200,
+      message: '已恢复为待审核',
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: '恢复失败',
+      error: error.message,
+    });
+  }
+};
