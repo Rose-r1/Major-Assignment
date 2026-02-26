@@ -47,60 +47,60 @@ export default function HotelInfo() {
   };
 
   const openEdit = async (record) => {
-  setEditingHotel(record);
+    setEditingHotel(record);
 
-  // 先填充酒店基础信息
-  form.setFieldsValue({
-    name_cn: record.name_cn,
-    name_en: record.name_en,
-    address: record.address,
-    starRating: record.starRating,
-    mainImage: record.mainImage
-      ? [{
+    // 先填充酒店基础信息
+    form.setFieldsValue({
+      name_cn: record.name_cn,
+      name_en: record.name_en,
+      address: record.address,
+      starRating: record.starRating,
+      mainImage: record.mainImage
+        ? [{
           uid: '-1',
           name: '主图',
           status: 'done',
           url: record.mainImage,
         }]
-      : [],
-    description: record.description,
-    status: record.status,
-    opening_date: record.opening_date ? dayjs(record.opening_date) : null,
-    nearby_info: record.nearby_info || {},
-    rooms: [], // 先置空
-  });
+        : [],
+      description: record.description,
+      status: record.status,
+      opening_date: record.opening_date ? dayjs(record.opening_date) : null,
+      nearby_info: record.nearby_info || {},
+      rooms: [], // 先置空
+    });
 
-  setIsModalVisible(true);
+    setIsModalVisible(true);
 
-  try {
-    // 调用后端接口获取房型
-    const roomRes = await fetchRooms(record.id);
-    const roomsList = Array.isArray(roomRes?.data) ? roomRes.data : [];
+    try {
+      // 调用后端接口获取房型
+      const roomRes = await fetchRooms(record.id);
+      const roomsList = Array.isArray(roomRes?.data) ? roomRes.data : [];
 
-    // 格式化房型为 Form.List 可识别结构
-    const formattedRooms = roomsList.map(r => ({
-      name: r.name,
-      price: parseFloat(r.price),
-      base_price: parseFloat(r.base_price),
-      capacity: r.capacity,
-      total_rooms: r.total_rooms,
-      image: r.image
-        ? [{
+      // 格式化房型为 Form.List 可识别结构
+      const formattedRooms = roomsList.map(r => ({
+        name: r.name,
+        price: parseFloat(r.price),
+        base_price: parseFloat(r.base_price),
+        capacity: r.capacity,
+        total_rooms: r.total_rooms,
+        image: r.image
+          ? [{
             uid: r.id,
             name: r.name,
             status: 'done',
             url: r.image,
           }]
-        : [],
-    }));
+          : [],
+      }));
 
-    // 设置到表单
-    form.setFieldsValue({ rooms: formattedRooms });
-  } catch (err) {
-    console.error('获取房型失败', err);
-    message.error('获取房型失败');
-  }
-};
+      // 设置到表单
+      form.setFieldsValue({ rooms: formattedRooms });
+    } catch (err) {
+      console.error('获取房型失败', err);
+      message.error('获取房型失败');
+    }
+  };
 
   const handleDelete = async (id) => {
     try {
@@ -132,82 +132,82 @@ export default function HotelInfo() {
   };
 
   const handleSave = async () => {
-  try {
-    const values = await form.validateFields();
-    console.log('表单值：', values);
-    // 取酒店主图
-    const main_image = values.mainImage?.[0]?.response?.url || values.mainImage?.[0]?.url || '';
-    
-    const payload = {
-      name_cn: values.name_cn,
-      name_en: values.name_en,
-      address: values.address,
-      star_rating: values.starRating,
-      main_image,
-      description: values.description,
-      status: values.status,
-      opening_date: values.opening_date ? values.opening_date.format('YYYY-MM-DD') : '',
-      nearby_info: values.nearby_info || {},
-      merchant_id: 5,
-    };
+    try {
+      const values = await form.validateFields();
+      console.log('表单值：', values);
+      // 取酒店主图
+      const main_image = values.mainImage?.[0]?.response?.url || values.mainImage?.[0]?.url || '';
 
-    let hotelId;
-    if (editingHotel) {
-      const res = await updateHotel(editingHotel.id, payload);
-      if (!res?.success && res?.code !== 200) throw new Error('更新酒店失败');
-      hotelId = editingHotel.id;
-      message.success('酒店已更新');
-    } else {
-      const res = await addHotel(payload);
-      if (!res?.success && res?.code !== 200) throw new Error('新增酒店失败');
-      hotelId = res.data?.id; // 后端返回新增酒店 id
-      message.success('酒店已新增');
+      const payload = {
+        name_cn: values.name_cn,
+        name_en: values.name_en,
+        address: values.address,
+        star_rating: values.starRating,
+        main_image,
+        description: values.description,
+        status: values.status,
+        opening_date: values.opening_date ? values.opening_date.format('YYYY-MM-DD') : '',
+        nearby_info: values.nearby_info || {},
+        merchant_id: 5,
+      };
+
+      let hotelId;
+      if (editingHotel) {
+        const res = await updateHotel(editingHotel.id, payload);
+        if (!res?.success && res?.code !== 200) throw new Error('更新酒店失败');
+        hotelId = editingHotel.id;
+        message.success('酒店已更新');
+      } else {
+        const res = await addHotel(payload);
+        if (!res?.success && res?.code !== 200) throw new Error('新增酒店失败');
+        hotelId = res.data?.id; // 后端返回新增酒店 id
+        message.success('酒店已新增');
+      }
+
+      // ---- 批量新增/更新房型 ----
+      const rooms = values.rooms || [];
+      await Promise.all(
+        rooms.map(room => {
+          console.log('处理房型：', room);
+          const roomPayload = {
+            name: room.name,
+            price: parseFloat(room.price),
+            base_price: parseFloat(room.base_price),
+            capacity: room.capacity,
+            total_rooms: room.total_rooms,
+            image: room.image?.[0]?.response?.url || room.image?.[0]?.url || '',
+          };
+          console.log('房型 payload：', roomPayload);
+          return upsertRoom(hotelId, roomPayload);
+        })
+      );
+
+      // 刷新酒店列表
+      const hotelRes = await fetchHotels();
+      const list = Array.isArray(hotelRes) ? hotelRes : (hotelRes?.data || []);
+      const formatted = list.map(item => ({
+        id: item.id,
+        name_cn: item.name_cn,
+        name_en: item.name_en,
+        address: item.address,
+        starRating: item.star_rating,
+        mainImage: item.main_image,
+        description: item.description,
+        status: item.status,
+        opening_date: item.opening_date,
+        nearby_info: item.nearby_info || {},
+      }));
+      setHotels(formatted);
+      setIsModalVisible(false);
+    } catch (err) {
+      console.error(err);
+      message.error(err.message || '保存失败');
     }
-
-    // ---- 批量新增/更新房型 ----
-    const rooms = values.rooms || [];
-    await Promise.all(
-      rooms.map(room => {
-        console.log('处理房型：', room);
-        const roomPayload = {
-          name: room.name,
-          price: parseFloat(room.price),
-          base_price: parseFloat(room.base_price),
-          capacity: room.capacity,
-          total_rooms: room.total_rooms,
-          image: room.image?.[0]?.response?.url || room.image?.[0]?.url || '',
-        };
-        console.log('房型 payload：', roomPayload);
-        return upsertRoom(hotelId, roomPayload);
-      })
-    );
-
-    // 刷新酒店列表
-    const hotelRes = await fetchHotels();
-    const list = Array.isArray(hotelRes) ? hotelRes : (hotelRes?.data || []);
-    const formatted = list.map(item => ({
-      id: item.id,
-      name_cn: item.name_cn,
-      name_en: item.name_en,
-      address: item.address,
-      starRating: item.star_rating,
-      mainImage: item.main_image,
-      description: item.description,
-      status: item.status,
-      opening_date: item.opening_date,
-      nearby_info: item.nearby_info || {},
-    }));
-    setHotels(formatted);
-    setIsModalVisible(false);
-  } catch (err) {
-    console.error(err);
-    message.error(err.message || '保存失败');
-  }
-};
+  };
 
   const columns = [
-    { title: '酒店名稱', dataIndex: 'name_cn', key: 'name_cn', width: 200 },
-    { title: '英文名稱', dataIndex: 'name_en', key: 'name_en', width: 200 },
+    { title: '酒店名称', dataIndex: 'name_cn', key: 'name_cn', width: 200 },
+    { title: '英文名称', dataIndex: 'name_en', key: 'name_en', width: 200 },
     { title: '地址', dataIndex: 'address', key: 'address', width: 300 },
     {
       title: '操作',
@@ -215,9 +215,9 @@ export default function HotelInfo() {
       width: 180,
       render: (_, record) => (
         <Space>
-          <Button size="small" onClick={() => openEdit(record)}>編輯</Button>
-          <Popconfirm title="確認刪除？" onConfirm={() => handleDelete(record.id)} okText="確認" cancelText="取消">
-            <Button danger size="small">刪除</Button>
+          <Button size="small" onClick={() => openEdit(record)}>编辑</Button>
+          <Popconfirm title="确认删除？" onConfirm={() => handleDelete(record.id)} okText="确认" cancelText="取消">
+            <Button danger size="small">删除</Button>
           </Popconfirm>
         </Space>
       ),
@@ -251,7 +251,7 @@ export default function HotelInfo() {
       </div>
 
       <Modal
-        title={editingHotel ? '編輯酒店' : '新增酒店'}
+        title={editingHotel ? '编辑酒店' : '新增酒店'}
         open={isModalVisible}
         onOk={handleSave}
         onCancel={() => setIsModalVisible(false)}
@@ -261,16 +261,16 @@ export default function HotelInfo() {
         style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: 16 }}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="name_cn" label="中文名稱" rules={[{ required: true, message: '請輸入中文名稱' }]}>
+          <Form.Item name="name_cn" label="中文名称" rules={[{ required: true, message: '请输入中文名称' }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="name_en" label="英文名稱" rules={[{ required: true, message: '請輸入英文名稱' }]}>
+          <Form.Item name="name_en" label="英文名称" rules={[{ required: true, message: '请输入英文名称' }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="address" label="地址" rules={[{ required: true, message: '請輸入地址' }]}>
+          <Form.Item name="address" label="地址" rules={[{ required: true, message: '请输入地址' }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="starRating" label="星级" rules={[{ required: true, message: '請選擇星级' }]}>
+          <Form.Item name="starRating" label="星级" rules={[{ required: true, message: '请选择星级' }]}>
             <Rate count={5} allowClear={false} />
           </Form.Item>
           <Form.Item
@@ -394,9 +394,9 @@ export default function HotelInfo() {
                 ))}
               </div>
             )}
-                </Form.List>
-              </Form>
-            </Modal>
-          </div>
-        );
-      }
+          </Form.List>
+        </Form>
+      </Modal>
+    </div>
+  );
+}
