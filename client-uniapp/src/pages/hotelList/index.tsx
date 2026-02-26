@@ -41,15 +41,31 @@ const SORT_DROPDOWN_OPTIONS = [
 
 export default function HotelList() {
     const router = useRouter();
-    const { city = '上海', checkIn: inTimeStr, checkOut: outTimeStr, keyword = '', tags: tagsStr } = router.params;
+    const { city, checkIn, checkOut, keyword, tags: tagsStr } = router.params;
 
-    const checkInTimestamp = inTimeStr ? parseInt(inTimeStr as string) : Date.now();
-    const checkOutTimestamp = outTimeStr ? parseInt(outTimeStr as string) : (Date.now() + 86400000);
+    const checkInTimestamp = checkIn ? parseInt(checkIn as string) : Date.now();
+    const checkOutTimestamp = checkOut ? parseInt(checkOut as string) : (Date.now() + 86400000);
 
-    const [currentCity, setCurrentCity] = useState(decodeURIComponent((city || '上海') as string));
+    // 解析从首页传来的参数
+    const cityParam = city ? decodeURIComponent(city as string) : '上海';
+    const keywordParam = keyword ? decodeURIComponent(keyword as string) : '';
+
+    // 解析价格和星级筛选
+    let initialPriceFilter = { minPrice: '', maxPrice: '', starRatings: [] as string[] };
+    try {
+        const pfStr = router.params.priceFilter;
+        if (pfStr) {
+            const parsed = JSON.parse(decodeURIComponent(pfStr as string));
+            if (parsed) initialPriceFilter = parsed;
+        }
+    } catch (e) {
+        console.error('解析价格筛选失败', e);
+    }
+
+    const [currentCity, setCurrentCity] = useState(cityParam);
     const [currentCheckIn, setCurrentCheckIn] = useState(checkInTimestamp);
     const [currentCheckOut, setCurrentCheckOut] = useState(checkOutTimestamp);
-    const [currentKeyword, setCurrentKeyword] = useState(decodeURIComponent((keyword || '') as string));
+    const [currentKeyword, setCurrentKeyword] = useState(keywordParam);
 
     const [showCitySelector, setShowCitySelector] = useState(false);
     const [showCalendar, setShowCalendar] = useState(false);
@@ -59,8 +75,8 @@ export default function HotelList() {
 
     const [locationTab, setLocationTab] = useState(0);
     const [locationList, setLocationList] = useState<any[]>([]);
-    const [priceFilter, setPriceFilter] = useState<{ minPrice: string, maxPrice: string, starRatings: string[] } | null>({ minPrice: '', maxPrice: '', starRatings: [] });
-    const [tempPriceFilter, setTempPriceFilter] = useState({ minPrice: '', maxPrice: '', starRatings: [] as string[] });
+    const [priceFilter, setPriceFilter] = useState<{ minPrice: string, maxPrice: string, starRatings: string[] } | null>(initialPriceFilter);
+    const [tempPriceFilter, setTempPriceFilter] = useState(initialPriceFilter);
     const [activeFilterCategory, setActiveFilterCategory] = useState(0);
     const [tempTags, setTempTags] = useState<string[]>([]);
     const [activeTags, setActiveTags] = useState<string[]>(() => {
@@ -90,7 +106,9 @@ export default function HotelList() {
                 area: selectedLocationName, // 传给后端的区域过滤参数
                 sort: sortMode === 'score' ? selectedSortType : (sortMode === 'price' ? 'price_asc' : ''),
                 page: pageNum,
-                limit: 10
+                limit: 10,
+                checkIn: currentCheckIn,
+                checkOut: currentCheckOut
             };
 
             if (priceFilter) {
@@ -131,7 +149,11 @@ export default function HotelList() {
 
     useEffect(() => {
         fetchHotels(1, false);
-    }, [priceFilter, activeTags, currentKeyword, sortMode, selectedSortType, selectedLocationName, currentCity]);
+    }, [priceFilter, activeTags, currentKeyword, sortMode, selectedSortType, selectedLocationName, currentCity, currentCheckIn, currentCheckOut]);
+
+    useEffect(() => {
+        fetchHotels(1, false);
+    }, [priceFilter, activeTags, currentKeyword, sortMode, selectedSortType, selectedLocationName, currentCity, currentCheckIn, currentCheckOut]);
 
     // 触底加载更多
     const handleScrollToLower = () => {

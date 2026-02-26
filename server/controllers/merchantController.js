@@ -237,6 +237,12 @@ exports.upsertRoom = async (req, res) => {
                 message: '房型更新成功'
             });
 
+            // 发送 WebSocket 通知
+            const io = req.app.get('io');
+            if (io) {
+                io.emit('price_updated', { hotel_id, message: '价格有变动' });
+            }
+
         } else {
             // 新增
             const insertSql = `
@@ -260,6 +266,12 @@ exports.upsertRoom = async (req, res) => {
                 message: '房型新增成功',
                 room_id: result.insertId
             });
+
+            // 发送 WebSocket 通知
+            const io = req.app.get('io');
+            if (io) {
+                io.emit('price_updated', { hotel_id, message: '新增了房型' });
+            }
         }
 
     } catch (error) {
@@ -344,37 +356,37 @@ exports.deleteHotel = async (req, res) => {
 
 // 获取酒店房型列表
 exports.getRoomTypesByHotel = async (req, res) => {
-  try {
-    const { hotel_id } = req.params;
+    try {
+        const { hotel_id } = req.params;
 
-    if (!hotel_id) {
-      return res.status(400).json({
-        message: '缺少 hotel_id 参数'
-      });
-    }
+        if (!hotel_id) {
+            return res.status(400).json({
+                message: '缺少 hotel_id 参数'
+            });
+        }
 
-    const sql = `
+        const sql = `
       SELECT id, name, price, base_price, capacity, total_rooms, image
       FROM room_types
       WHERE hotel_id = ?
       ORDER BY id ASC
     `;
 
-    const [rows] = await db.execute(sql, [hotel_id]);
+        const [rows] = await db.execute(sql, [hotel_id]);
 
-    res.json({
-      code: 200,
-      success: true,
-      data: rows
-    });
+        res.json({
+            code: 200,
+            success: true,
+            data: rows
+        });
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      code: 500,
-      success: false,
-      message: '获取房型失败',
-      error: error.message
-    });
-  }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            code: 500,
+            success: false,
+            message: '获取房型失败',
+            error: error.message
+        });
+    }
 };
