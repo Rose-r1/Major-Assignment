@@ -418,7 +418,13 @@ export default function HotelList() {
                             <Image className='card-img' src={hotel.image} mode='aspectFill' />
                         </View>
                         <View className='card-body'>
-                            <View className='name-row'><Text className='hotel-name'>{hotel.name}</Text><View className='stars-wrap'>{renderStars(hotel.star)}</View></View>
+                            <View className='name-row'>
+                                <View style={{ flex: 1 }}>
+                                    <Text className='hotel-name'>{hotel.name}</Text>
+                                    <View style={{ fontSize: '10px', color: '#999', marginTop: '2px' }}>{hotel.name_en}</View>
+                                </View>
+                                <View className='stars-wrap'>{renderStars(hotel.star)}</View>
+                            </View>
                             <View className='score-row'><View className='score-box'><Text className='score-val'>{hotel.score}</Text></View><Text className='score-lbl'>{hotel.scoreLabel}</Text><Text className='meta'>{hotel.reviews}点评 · {formatFav(hotel.favorites)}收藏</Text></View>
                             <Text className='dist'>{hotel.distance}</Text>
                             <Text className='hl'>{hotel.highlight}</Text>

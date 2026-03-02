@@ -36,6 +36,7 @@ export default function HotelDetail() {
                     setHotel({
                         ...data,
                         name: data.name_cn,
+                        name_en: data.name_en, // 显式赋值确保生效
                         star: data.star_rating,
                         score: data.score || 4.8,
                         scoreLabel: data.score_label || '超棒',
@@ -148,7 +149,7 @@ export default function HotelDetail() {
                     <View className='base-info-card'>
                         <View className='hotel-header'>
                             <Text className='hotel-name-large'>{hotel.name}</Text>
-                            <Text className='hotel-en-name'>Singapore Marriott Tang Plaza Hotel</Text>
+                            <Text className='hotel-en-name'>{hotel.name_en}</Text>
                             <View className='stars-row'>
                                 {Array.from({ length: hotel.star || 5 }).map((_, i) => <Text key={i} className='star-icon diamond'>💎</Text>)}
                             </View>
