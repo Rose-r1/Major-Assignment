@@ -15,6 +15,7 @@ import {
 import { CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { getHotels, forceOfflineHotel, restoreHotelToPending, auditHotel, getAuditList } from '@/api/admin';
 import debounce from 'lodash.debounce';
+import Room from '@/components/Room';
 import './HotelReview.css';
 
 export default function HotelReview() {
@@ -418,36 +419,51 @@ export default function HotelReview() {
 
           {/* 酒店详情弹窗 */}
           <Modal
-            title={detailHotel ? (detailHotel.name || detailHotel.name_cn || detailHotel.name_en) : '酒店详情'}
+            title={detailHotel ? (detailHotel.name_cn || detailHotel.name_en) : '酒店详情'}
             open={detailVisible}
             onCancel={() => setDetailVisible(false)}
             footer={null}
-            width={600}
+            width={700}
+            styles={{
+              body: {
+                height: '70vh',
+                padding: 0,
+                overflowY: 'auto',
+              },
+            }}
           >
             {detailHotel && (
-              <div style={{ display: 'flex', gap: 24 }}>
-                {detailHotel.mainImage && (
-                  <img src={detailHotel.mainImage || detailHotel.main_image} alt="酒店图片" style={{ width: 200, height: 150, objectFit: 'cover', borderRadius: 8 }} />
-                )}
-                <div style={{ flex: 1 }}>
-                  <div><b>酒店名称：</b>{detailHotel.name_cn}</div>
-                  <div><b>酒店英文名称：</b>{detailHotel.name_en}</div>
-                  <div><b>地址：</b>{detailHotel.address}</div>
-                  <div><b>星级：</b>{detailHotel.starRating || detailHotel.star_rating || '-'}</div>
-                  <div><b>开业时间：</b>{detailHotel.opening_date ? new Date(detailHotel.opening_date).toLocaleDateString() : '-'}</div>
-                  <div><b>简介：</b>{detailHotel.description || '-'}</div>
-                  <div><b>附近：</b>
-                    {detailHotel.nearby_info && (
-                      <ul style={{ margin: 0, paddingLeft: 16 }}>
-                        <li><b>商场：</b>{detailHotel.nearby_info.mall || '-'}</li>
-                        <li><b>景点：</b>{detailHotel.nearby_info.scenery || '-'}</li>
-                        <li><b>交通：</b>{detailHotel.nearby_info.traffic || '-'}</li>
-                      </ul>
-                    )}
+              <>
+                <div style={{ display: 'flex', gap: 24 }}>
+                  {detailHotel.mainImage && (
+                    <img src={detailHotel.mainImage || detailHotel.main_image} alt="酒店图片" style={{ width: 200, height: 150, objectFit: 'cover', borderRadius: 8 }} />
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <div><b>酒店名称：</b>{detailHotel.name_cn}</div>
+                    <div><b>酒店英文名称：</b>{detailHotel.name_en}</div>
+                    <div><b>地址：</b>{detailHotel.address}</div>
+                    <div><b>星级：</b>{detailHotel.starRating || detailHotel.star_rating || '-'}</div>
+                    <div><b>开业时间：</b>{detailHotel.opening_date ? new Date(detailHotel.opening_date).toLocaleDateString() : '-'}</div>
+                    <div><b>简介：</b>{detailHotel.description || '-'}</div>
+                    <div><b>附近：</b>
+                      {detailHotel.nearby_info && (
+                        <ul style={{ margin: 0, paddingLeft: 16 }}>
+                          <li><b>商场：</b>{detailHotel.nearby_info.mall || '-'}</li>
+                          <li><b>景点：</b>{detailHotel.nearby_info.scenery || '-'}</li>
+                          <li><b>交通：</b>{detailHotel.nearby_info.traffic || '-'}</li>
+                        </ul>
+                      )}
+                    </div>
+                    <div><b>标签：</b>{detailHotel.tags ? detailHotel.tags.join(', ') : '-'}</div>
                   </div>
-                  <div><b>标签：</b>{detailHotel.tags ? detailHotel.tags.join(', ') : '-'}</div>
                 </div>
-              </div>
+                <div>
+                  <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 16 }}>
+                    房型列表
+                  </div>
+                  <Room hotelId={detailHotel.id} />
+                </div>
+              </>
             )}
           </Modal>
         </div>
