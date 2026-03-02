@@ -124,6 +124,7 @@ exports.getHotelList = async (req, res) => {
                 reviews: h.reviews_count || 100,
                 favorites: h.favorites_count || 500,
                 distance: h.address,
+                name_en: h.name_en, // 添加英文名
                 highlight: h.description ? h.description.substring(0, 30) : '高品质酒店',
                 tags: tags,
                 image: imageUrl,

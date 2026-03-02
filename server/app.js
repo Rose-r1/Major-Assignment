@@ -13,8 +13,27 @@ const uploadRouter = require('./routes/upload');
 const path = require('path');
 
 
-const app = express();
+const http = require('http');
+const { Server } = require('socket.io');
 
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "*", // 允许小程序端跨域连接
+        methods: ["GET", "POST"]
+    }
+});
+
+// 将 io 实例挂载到 app 上，方便在路由/控制器中通过 req.app.get('io') 获取
+app.set('io', io);
+
+io.on('connection', (socket) => {
+    console.log('有新的客户端连接:', socket.id);
+    socket.on('disconnect', () => {
+        console.log('客户端断开连接:', socket.id);
+    });
+});
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -46,9 +65,9 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`====================================`);
-    console.log(`后端服务已启动`);
+    console.log(`后端服务已启动 (已开启 WebSocket)`);
     console.log(`运行端口: ${PORT}`);
     console.log(`环境: ${process.env.NODE_ENV || 'development'}`);
     console.log(`====================================`);
