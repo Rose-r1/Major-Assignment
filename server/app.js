@@ -8,6 +8,7 @@ const merchantRoute = require('./routes/merchantRoute');
 const adminRoute = require('./routes/adminRoute');
 const bannerRoute = require('./routes/bannerRoute');
 const locationRoute = require('./routes/locationRoute');
+const chatRoute = require('./routes/chatRoute');
 const uploadRouter = require('./routes/upload');
 const path = require('path');
 
@@ -31,6 +32,7 @@ app.use('/api/merchant', authMiddleware, merchantRoute); //商户端接口 (Prot
 app.use('/api/admin', authMiddleware, adminRoute);   //管理员端接口 (Protected)
 app.use('/api/banners', bannerRoute); // Banner 接口 (内部区分公开/私有)
 app.use('/api/location', locationRoute);
+app.use('/api/chat', chatRoute);
 app.use('/api', uploadRouter); // 路由身份验证移至路由内部，防止拦截其他错误路径
 
 

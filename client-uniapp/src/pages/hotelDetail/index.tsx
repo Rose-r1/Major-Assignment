@@ -2,6 +2,7 @@ import { View, Text, Image, ScrollView, Swiper, SwiperItem } from '@tarojs/compo
 import Taro, { useRouter } from '@tarojs/taro'
 import { useState, useEffect } from 'react'
 import RangeCalendar from '../../components/RangeCalendar'
+import ChatDialog from '../../components/ChatDialog'
 import { API_BASE_URL } from '../../config'
 import './index.scss'
 
@@ -13,6 +14,7 @@ export default function HotelDetail() {
     const [loading, setLoading] = useState(true);
     const [scrolled, setScrolled] = useState(false);
     const [showCalendar, setShowCalendar] = useState(false);
+    const [showChat, setShowChat] = useState(false);
 
     const [currentCheckIn, setCurrentCheckIn] = useState(inTimeStr ? parseInt(inTimeStr) : Date.now());
     const [currentCheckOut, setCurrentCheckOut] = useState(outTimeStr ? parseInt(outTimeStr) : (Date.now() + 86400000));
@@ -262,7 +264,7 @@ export default function HotelDetail() {
             {/* 底部悬浮条 */}
             <View className='bottom-action-bar'>
                 <View className='bar-left'>
-                    <View className='item'><Text className='icon'>💬</Text><Text className='label'>问酒店</Text></View>
+                    <View className='item' onClick={() => setShowChat(true)}><Text className='icon'>💬</Text><Text className='label'>问酒店</Text></View>
                     {/* <View className='item'><Text className='icon'>📞</Text><Text className='label'>电话</Text></View> */}
                 </View>
                 <View className='bar-right'>
@@ -287,6 +289,13 @@ export default function HotelDetail() {
                 }}
                 initialStartDate={new Date(currentCheckIn)}
                 initialEndDate={new Date(currentCheckOut)}
+            />
+
+            <ChatDialog
+                visible={showChat}
+                onClose={() => setShowChat(false)}
+                hotelId={id as string}
+                hotelName={hotel.name}
             />
         </View>
     )
