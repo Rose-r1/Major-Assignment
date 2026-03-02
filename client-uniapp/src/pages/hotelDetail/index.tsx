@@ -161,7 +161,7 @@ export default function HotelDetail() {
                                     <View className='icon-circle'>
                                         <Image className='f-icon' src='https://pages.c-ctrip.com/hotelapps/images/detail/opentime_W_1200_0.png_.webp?_fr=wc' mode='aspectFit' />
                                     </View>
-                                    <Text className='label'>2021年装修</Text>
+                                    <Text className='label'>{hotel.opening_date ? `${String(hotel.opening_date).substring(0, 4)}年开业` : '近期开业'}</Text>
                                 </View>
                                 <View className='facility-item'>
                                     <View className='icon-circle'>
